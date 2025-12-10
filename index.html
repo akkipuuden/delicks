@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Delick's App">
+    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/e87d5a_121fa3ebb2984c7485b6f88a86e6f70a~mv2.png">
+    
+    <title>Delick's - Gestão</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --brand-yellow: #FFD600;
+            --brand-red: #C62828;
+            --brand-dark: #3E2723;
+            --bg-body: #E0E0E0;
+            --bg-app: #FAFAFA;
+            --surface: #FFFFFF;
+            --success: #43A047;
+            --radius: 16px;
+            --shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--brand-dark);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        #app-wrapper {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-app);
+            height: 100%;
+            position: relative;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 90px;
+            scroll-behavior: smooth;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--brand-yellow);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .brand-logo { height: 45px; object-fit: contain; }
+        .header-actions button {
+            background: rgba(255,255,255,0.3); border: none; width: 35px; height: 35px;
+            border-radius: 50%; color: var(--brand-red); font-size: 1.1rem; cursor: pointer;
+        }
+
+        /* Views */
+        .view { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* UI Components */
+        h2 { color: var(--brand-red); margin-top: 0; font-weight: 800; }
+        
+        .card {
+            background: var(--surface); border-radius: var(--radius); padding: 20px;
+            box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box {
+            background: white; padding: 15px; border-radius: var(--radius); text-align: center;
+            box-shadow: var(--shadow); border-bottom: 4px solid var(--brand-yellow);
+        }
+        .stat-value { font-size: 1.4rem; font-weight: 800; color: var(--brand-red); display: block; }
+        .stat-label { font-size: 0.8rem; color: #777; font-weight: 600; }
+
+        .progress-track { background: #EEEEEE; height: 12px; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--brand-yellow), orange); width: 0%; transition: width 1s ease; }
+
+        .category-title {
+            color: var(--brand-dark); font-size: 1.2rem; font-weight: 800;
+            margin: 25px 0 10px 0; padding-left: 10px; border-left: 4px solid var(--brand-yellow);
+        }
+
+        .product-item {
+            background: white; padding: 15px; margin-bottom: 12px; border-radius: var(--radius);
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: transform 0.1s;
+        }
+        .product-item:active { transform: scale(0.98); }
+
+        .prod-info h4 { margin: 0; color: var(--brand-dark); }
+        .prod-info p { margin: 4px 0 0 0; font-size: 0.9rem; color: #777; }
+        
+        .stock-tag { font-size: 0.7rem; background: #F5F5F5; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+        .stock-warn { color: red; background: #FFEBEE; }
+        .stock-ok { color: green; background: #E8F5E9; }
+
+        .qty-wrapper {
+            display: flex; align-items: center; background: #F5F5F5;
+            border-radius: 20px; padding: 3px;
+        }
+        .qty-btn {
+            width: 32px; height: 32px; border-radius: 50%; border: none; background: white;
+            color: var(--brand-red); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;
+        }
+        .qty-val { width: 30px; text-align: center; font-weight: 700; font-size: 0.9rem; }
+
+        .btn {
+            width: 100%; padding: 16px; border-radius: 12px; border: none; font-family: inherit;
+            font-weight: 700; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; margin-bottom: 10px;
+        }
+        .btn-primary { background: var(--brand-red); color: white; box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3); }
+        .btn-secondary { background: var(--brand-yellow); color: var(--brand-dark); }
+        .btn-danger { background: #ffebee; color: var(--brand-red); }
+        .btn:active { opacity: 0.8; }
+
+        .form-control {
+            width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px;
+            font-family: inherit; margin-bottom: 15px; background: white; outline: none;
+        }
+        .form-control:focus { border-color: var(--brand-yellow); }
+
+        /* Nav */
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: white;
+            display: flex; justify-content: space-around; padding: 12px 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05); z-index: 100;
+        }
+        .nav-item {
+            text-align: center; color: #9E9E9E; font-size: 0.75rem; text-decoration: none;
+            flex: 1; transition: color 0.3s;
+        }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; display: block; }
+        .nav-item.active { color: var(--brand-red); }
+
+        /* Cart Float */
+        .cart-float {
+            position: absolute; bottom: 90px; right: 20px; background: var(--brand-red);
+            color: white; width: 60px; height: 60px; border-radius: 50%; display: none;
+            align-items: center; justify-content: center; font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(198, 40, 40, 0.4); cursor: pointer; z-index: 90;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cart-badge {
+            position: absolute; top: -5px; right: -5px; background: var(--brand-yellow);
+            color: var(--brand-dark); width: 22px; height: 22px; border-radius: 50%;
+            font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center;
+        }
+        @keyframes popIn { from{transform: scale(0);} to{transform: scale(1);} }
+
+        /* TOAST NOTIFICATIONS */
+        #toast-container {
+            position: fixed; top: 20px; left: 0; right: 0; display: flex; justify-content: center; 
+            z-index: 2000; pointer-events: none;
+        }
+        .toast {
+            background: #333; color: white; padding: 12px 24px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-size: 0.9rem; font-weight: 600;
+            margin-bottom: 10px; animation: slideDown 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex; align-items: center; gap: 10px; pointer-events: auto;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--brand-red); }
+        .toast i { font-size: 1.1rem; }
+        
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
+
+        /* MODALS */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);
+            z-index: 200; display: none; justify-content: center; align-items: flex-end;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-center { align-items: center; }
+        
+        .modal-content {
+            background: white; width: 100%; border-top-left-radius: 24px; border-top-right-radius: 24px;
+            padding: 25px; max-height: 85%; overflow-y: auto; animation: slideUp 0.3s ease;
+        }
+        .modal-center .modal-content {
+            width: 90%; border-radius: 24px; max-width: 400px; animation: popIn 0.3s ease;
+        }
+        @keyframes slideUp { from{transform: translateY(100%);} to{transform: translateY(0);} }
+        @keyframes popIn { from{transform: scale(0.9); opacity:0;} to{transform: scale(1); opacity:1;} }
+
+        .cart-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; }
+    </style>
+</head>
+<body>
+
+<div id="app-wrapper">
+    <div id="toast-container"></div>
+
+    <header>
+        <img src="https://static.wixstatic.com/media/e87d5a_121fa3ebb2984c7485b6f88a86e6f70a~mv2.png" alt="Delick's" class="brand-logo">
+        <div class="header-actions">
+            <button onclick="navTo('home')"><i class="fas fa-home"></i></button>
+        </div>
+    </header>
+
+    <div id="main-content">
+        
+        <div id="view-home" class="view active">
+            <div style="margin-bottom: 20px;">
+                <h2 style="color: var(--brand-dark); margin-bottom: 5px;">Olá, Gestor!</h2>
+                <span style="color: #777;">Acompanhamento mensal de vendas</span>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <span class="stat-value" id="month-sales">R$ 0</span>
+                    <span class="stat-label">Vendas Mês</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-value" id="stock-alert">0</span>
+                    <span class="stat-label">Estoque Baixo</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <h3 style="margin:0; color: var(--brand-dark);">Meta Mensal</h3>
+                    <span style="font-weight:700; color:var(--brand-red);" id="progress-txt">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-bar"></div>
+                </div>
+                <p style="text-align:right; font-size:0.8rem; color:#999; margin-top:5px;">Alvo: R$ 50.000,00</p>
+            </div>
+
+            <button class="btn btn-primary" onclick="navTo('sales')">
+                <i class="fas fa-plus-circle" style="margin-right:8px;"></i> Nova Venda
+            </button>
+        </div>
+
+        <div id="view-sales" class="view">
+            <h2>Realizar Pedido</h2>
+            
+            <div style="background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <label style="font-size:0.8rem; font-weight:700; color:#999; display:block; margin-bottom:5px;">CLIENTE</label>
+                <div style="display:flex; gap:10px;">
+                    <select id="client-select" class="form-control" style="margin:0;">
+                        <option value="">Selecione...</option>
+                    </select>
+                    <button class="btn btn-secondary" style="width:auto; margin:0;" onclick="openAddClientModal()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="catalog-container"></div>
+        </div>
+
+        <div id="view-stock" class="view">
+            <h2>Gestão de Estoque</h2>
+            <div id="stock-list-container"></div>
+        </div>
+
+        <div id="view-clients" class="view">
+            <h2>Meus Clientes</h2>
+            <button class="btn btn-primary" onclick="openAddClientModal()"><i class="fas fa-user-plus"></i> Novo Cliente</button>
+            <p style="color:#999; font-size:0.9rem; margin-top:20px;">Toque em um cliente para editar ou excluir.</p>
+            <ul id="clients-list" style="list-style:none; padding:0; margin-top: 10px;"></ul>
+        </div>
+
+    </div>
+
+    <div id="cart-btn" class="cart-float" onclick="toggleCart()">
+        <i class="fas fa-shopping-basket"></i>
+        <div class="cart-badge" id="cart-count">0</div>
+    </div>
+
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2>Carrinho</h2>
+                <i class="fas fa-times" onclick="toggleCart()" style="font-size:1.5rem; color:#ccc; cursor:pointer;"></i>
+            </div>
+            <div id="cart-items" style="max-height: 40vh; overflow-y:auto; margin-bottom:20px;"></div>
+            <div style="display:flex; justify-content:space-between; font-size:1.3rem; font-weight:800; color:var(--brand-dark); margin-bottom:20px; border-top:2px solid #eee; padding-top:15px;">
+                <span>Total</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+            <button class="btn btn-primary" onclick="finalizeOrder()">Confirmar Pedido</button>
+        </div>
+    </div>
+
+    <div id="client-modal" class="modal-overlay modal-center">
+        <div class="modal-content">
+            <h3>Novo Cliente</h3>
+            <input type="text" id="new-client-name" class="form-control" placeholder="Nome do cliente ou empresa">
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-secondary" onclick="closeModal('client-modal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveNewClient()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-client-modal" class="modal-overlay modal-center">
+        <div class="modal-content">
+            <h3>Editar Cliente</h3>
+            <input type="text" id="edit-client-name" class="form-control">
+            <div style="display:flex; gap:10px; margin-top: 10px;">
+                <button class="btn btn-danger" style="flex: 0 0 auto; width: 60px;" onclick="deleteClient()">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="saveEditedClient()">Salvar Alteração</button>
+            </div>
+            <button class="btn" style="background:transparent; color:#999; margin-top:5px; padding:10px;" onclick="closeModal('edit-client-modal')">Cancelar</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="navTo('home')" data-target="home">
+            <i class="fas fa-chart-pie"></i> Início
+        </a>
+        <a href="#" class="nav-item" onclick="navTo('sales')" data-target="sales">
+            <i class="fas fa-utensils"></i> Venda
+        </a>
+        <a href="#" class="nav-item" onclick="navTo('stock')" data-target="stock">
+            <i class="fas fa-boxes"></i> Estoque
+        </a>
+        <a href="#" class="nav-item" onclick="navTo('clients')" data-target="clients">
+            <i class="fas fa-users"></i> Clientes
+        </a>
+    </nav>
+</div>
+
+<script>
+    // --- DATABASE ---
+    const db = {
+        products: [
+            { id: 1, name: "Mini Kibe Tradicional 1kg", cat: "Mini Fritos", price: 25.00, stock: 50 },
+            { id: 2, name: "Bolinha de Queijo 1kg", cat: "Mini Fritos", price: 28.00, stock: 40 },
+            { id: 3, name: "Mini Risoles Presunto/Queijo", cat: "Mini Fritos", price: 28.00, stock: 35 },
+            { id: 4, name: "Mini Coxinha Frango 1kg", cat: "Mini Fritos", price: 25.00, stock: 60 },
+            { id: 5, name: "Mini Churros Doce Leite", cat: "Mini Fritos", price: 30.00, stock: 20 },
+            { id: 6, name: "Mini Folhado Calabresa", cat: "Folhados", price: 32.00, stock: 25 },
+            { id: 7, name: "Mini Folhado Frango", cat: "Folhados", price: 32.00, stock: 25 },
+            { id: 8, name: "Risole Frango 150g", cat: "Lanches", price: 6.50, stock: 100 },
+            { id: 9, name: "Enrolado Salsicha", cat: "Lanches", price: 6.00, stock: 80 },
+            { id: 10, name: "Empanada Carne/Cheddar", cat: "Empanadas", price: 7.00, stock: 40 },
+            { id: 11, name: "Pão de Queijo 2kg", cat: "Pão de Queijo", price: 45.00, stock: 30 },
+            { id: 12, name: "Quiche Lorraine", cat: "Assados", price: 8.00, stock: 15 },
+            { id: 13, name: "Hambúrguer de Forno", cat: "Assados", price: 9.00, stock: 50 }
+        ],
+        clients: ["Consumidor Final", "Padaria Central", "Mercado Silva"],
+        sales: [],
+        target: 50000
+    };
+
+    let cart = {}; 
+    let currentEditClientIndex = null; // Variável para controlar qual cliente está sendo editado
+
+    function init() {
+        if(localStorage.getItem('delicks_db')) {
+            const saved = JSON.parse(localStorage.getItem('delicks_db'));
+            db.products = saved.products;
+            db.clients = saved.clients;
+            db.sales = saved.sales;
+        } else {
+            saveDb();
+        }
+        renderHome();
+        navTo('home');
+    }
+
+    function saveDb() {
+        localStorage.setItem('delicks_db', JSON.stringify({
+            products: db.products,
+            clients: db.clients,
+            sales: db.sales
+        }));
+        renderHome();
+    }
+
+    // --- UX: TOAST NOTIFICATIONS ---
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.4s forwards';
+            toast.addEventListener('animationend', () => toast.remove());
+        }, 3000);
+    }
+
+    // --- NAVIGATION ---
+    function navTo(pageId) {
+        document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById('view-' + pageId).classList.add('active');
+        const navBtn = document.querySelector(`.nav-item[data-target="${pageId}"]`);
+        if(navBtn) navBtn.classList.add('active');
+
+        document.getElementById('cart-btn').style.display = (pageId === 'sales') ? 'flex' : 'none';
+        
+        if(pageId === 'sales') renderCatalog();
+        if(pageId === 'stock') renderStock();
+        if(pageId === 'clients') renderClients();
+        if(pageId === 'home') renderHome();
+    }
+
+    // --- RENDERIZADORES ---
+    function renderHome() {
+        const total = db.sales.reduce((acc, sale) => acc + sale.total, 0);
+        document.getElementById('month-sales').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        const low = db.products.filter(p => p.stock < 10).length;
+        document.getElementById('stock-alert').innerText = low;
+        document.getElementById('stock-alert').style.color = low > 0 ? 'var(--brand-red)' : 'var(--success)';
+        const pct = Math.min(100, (total / db.target) * 100);
+        document.getElementById('progress-bar').style.width = pct + '%';
+        document.getElementById('progress-txt').innerText = pct.toFixed(1) + '%';
+    }
+
+    function renderCatalog() {
+        const container = document.getElementById('catalog-container');
+        const select = document.getElementById('client-select');
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">Selecione o Cliente...</option>';
+        db.clients.forEach(c => { select.innerHTML += `<option value="${c}">${c}</option>`; });
+        select.value = currentVal;
+
+        const grouped = {};
+        db.products.forEach(p => {
+            if(!grouped[p.cat]) grouped[p.cat] = [];
+            grouped[p.cat].push(p);
+        });
+
+        let html = '';
+        for(let cat in grouped) {
+            html += `<div class="category-title">${cat}</div>`;
+            grouped[cat].forEach(p => {
+                const qty = cart[p.id] || 0;
+                const lowStock = p.stock < 10;
+                html += `
+                <div class="product-item">
+                    <div class="prod-info">
+                        <h4>${p.name}</h4>
+                        <p>R$ ${p.price.toFixed(2)} <span class="stock-tag ${lowStock ? 'stock-warn' : 'stock-ok'}">${p.stock} est.</span></p>
+                    </div>
+                    <div class="qty-wrapper">
+                        <button class="qty-btn" onclick="addCart(${p.id}, -1)">-</button>
+                        <div class="qty-val">${qty}</div>
+                        <button class="qty-btn" onclick="addCart(${p.id}, 1)">+</button>
+                    </div>
+                </div>`;
+            });
+        }
+        container.innerHTML = html;
+        updateCartIcon();
+    }
+
+    function renderStock() {
+        const container = document.getElementById('stock-list-container');
+        const grouped = {};
+        db.products.forEach(p => {
+            if(!grouped[p.cat]) grouped[p.cat] = [];
+            grouped[p.cat].push(p);
+        });
+        let html = '';
+        for(let cat in grouped) {
+            html += `<div class="category-title" style="margin-top:15px; font-size:1rem;">${cat}</div>`;
+            grouped[cat].forEach(p => {
+                const isLow = p.stock < 10;
+                html += `
+                <div class="product-item">
+                    <div class="prod-info">
+                        <h4>${p.name}</h4>
+                        <p style="color:#aaa;">Estoque Atual</p>
+                    </div>
+                    <div class="qty-wrapper" style="background: ${isLow ? '#FFEBEE' : '#E8F5E9'}">
+                        <button class="qty-btn" onclick="updateStock(${p.id}, -1)">-</button>
+                        <div class="qty-val" style="width:40px;">${p.stock}</div>
+                        <button class="qty-btn" onclick="updateStock(${p.id}, 1)">+</button>
+                    </div>
+                </div>`;
+            });
+        }
+        container.innerHTML = html;
+    }
+
+    function updateStock(id, delta) {
+        const p = db.products.find(x => x.id == id);
+        const newStock = p.stock + delta;
+        if(newStock < 0) { showToast('Estoque não pode ser negativo', 'error'); return; }
+        p.stock = newStock;
+        saveDb();
+        renderStock();
+    }
+
+    // --- CLIENTS (NOVO CÓDIGO EDITAR/EXCLUIR) ---
+    function renderClients() {
+        const list = document.getElementById('clients-list');
+        list.innerHTML = '';
+        db.clients.forEach((c, index) => {
+            list.innerHTML += `
+            <li class="product-item" onclick="openEditClient(${index})" style="cursor:pointer">
+                <span style="font-weight:700;">${c}</span>
+                <i class="fas fa-pen" style="color:#ddd; font-size:0.9rem;"></i>
+            </li>`;
+        });
+    }
+
+    function openEditClient(index) {
+        currentEditClientIndex = index;
+        const name = db.clients[index];
+        document.getElementById('edit-client-name').value = name;
+        document.getElementById('edit-client-modal').classList.add('open');
+    }
+
+    function saveEditedClient() {
+        const newName = document.getElementById('edit-client-name').value.trim();
+        if(newName && currentEditClientIndex !== null) {
+            db.clients[currentEditClientIndex] = newName;
+            saveDb();
+            renderClients();
+            closeModal('edit-client-modal');
+            showToast('Cliente atualizado!', 'success');
+        } else {
+            showToast('Nome inválido', 'error');
+        }
+    }
+
+    function deleteClient() {
+        if(currentEditClientIndex !== null) {
+            if(confirm(`Tem certeza que deseja remover ${db.clients[currentEditClientIndex]}?`)) {
+                db.clients.splice(currentEditClientIndex, 1);
+                saveDb();
+                renderClients();
+                closeModal('edit-client-modal');
+                showToast('Cliente removido.', 'success');
+            }
+        }
+    }
+
+    // --- CART LOGIC ---
+    function addCart(id, delta) {
+        const p = db.products.find(x => x.id == id);
+        if(!cart[id]) cart[id] = 0;
+        const nextQty = cart[id] + delta;
+        if(nextQty < 0) return;
+        if(nextQty > p.stock) { showToast('Estoque insuficiente!', 'error'); return; }
+        cart[id] = nextQty;
+        if(cart[id] === 0) delete cart[id];
+        renderCatalog();
+    }
+
+    function updateCartIcon() {
+        const count = Object.values(cart).reduce((a,b) => a+b, 0);
+        document.getElementById('cart-count').innerText = count;
+        document.getElementById('cart-btn').style.display = 'flex';
+        const btn = document.getElementById('cart-btn');
+        btn.style.animation = 'none';
+        btn.offsetHeight; 
+        btn.style.animation = 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+    }
+
+    function toggleCart() {
+        const modal = document.getElementById('cart-modal');
+        if(!modal.classList.contains('open')) {
+            const container = document.getElementById('cart-items');
+            let html = '';
+            let total = 0;
+            for(let id in cart) {
+                const p = db.products.find(x => x.id == id);
+                const sub = p.price * cart[id];
+                total += sub;
+                html += `
+                <div class="cart-row">
+                    <div>
+                        <div style="font-weight:700;">${p.name}</div>
+                        <small>${cart[id]}x R$ ${p.price.toFixed(2)}</small>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <b>R$ ${sub.toFixed(2)}</b>
+                        <i class="fas fa-trash" style="color:#ddd; cursor:pointer;" onclick="removeFromCart(${id})"></i>
+                    </div>
+                </div>`;
+            }
+            if(html === '') html = '<p style="text-align:center; color:#999;">Seu carrinho está vazio.</p>';
+            container.innerHTML = html;
+            document.getElementById('cart-total').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            modal.classList.add('open');
+        } else {
+            modal.classList.remove('open');
+        }
+    }
+
+    function removeFromCart(id) {
+        delete cart[id];
+        const modal = document.getElementById('cart-modal');
+        modal.classList.remove('open'); 
+        toggleCart();
+        renderCatalog();
+    }
+
+    function finalizeOrder() {
+        const client = document.getElementById('client-select').value;
+        if(!client) {
+            showToast('Selecione um cliente para finalizar!', 'error');
+            toggleCart();
+            return;
+        }
+        if(Object.keys(cart).length === 0) { showToast('Carrinho vazio!', 'error'); return; }
+
+        let total = 0;
+        for(let id in cart) {
+            const p = db.products.find(x => x.id == id);
+            p.stock -= cart[id];
+            total += (p.price * cart[id]);
+        }
+
+        db.sales.push({ id: Date.now(), date: new Date(), client: client, total: total });
+        cart = {};
+        saveDb();
+        toggleCart();
+        navTo('home');
+        showToast(`Venda de R$ ${total.toFixed(2)} registrada!`, 'success');
+    }
+
+    // --- MODALS HELPER ---
+    function openAddClientModal() {
+        document.getElementById('client-modal').classList.add('open');
+        document.getElementById('new-client-name').focus();
+    }
+
+    function saveNewClient() {
+        const input = document.getElementById('new-client-name');
+        const name = input.value.trim();
+        if(name) {
+            db.clients.push(name);
+            saveDb();
+            input.value = '';
+            closeModal('client-modal');
+            showToast('Cliente cadastrado!', 'success');
+            if(document.querySelector('#view-clients').classList.contains('active')) renderClients();
+            if(document.querySelector('#view-sales').classList.contains('active')) renderCatalog();
+        } else {
+            showToast('Digite um nome válido.', 'error');
+        }
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+    }
+
+    init();
+
+</script>
+</body>
+</html>
