@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Delick's - ERP Industrial V5</title>
+    <title>Delick's - ERP Industrial</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -164,7 +164,7 @@
 
     <header>
         <img src="https://static.wixstatic.com/media/e87d5a_121fa3ebb2984c7485b6f88a86e6f70a~mv2.png" alt="Delick's" class="brand-logo">
-        <div style="color:var(--brand-dark); font-weight:bold; font-size:0.9rem;"><i class="fas fa-industry"></i> Indústria V5</div>
+        <div style="color:var(--brand-dark); font-weight:bold; font-size:0.9rem;"><i class="fas fa-industry"></i> Indústria</div>
     </header>
 
     <div id="main-content">
@@ -442,6 +442,25 @@
             </div>
         </div>
     </div>
+	<div id="withdraw-modal" class="modal-overlay modal-center">
+        <div class="modal-content">
+            <h3>Retirar Insumo</h3>
+            <p style="font-size:0.85rem; color:#666; margin-top:0;">Almoxarifado: <strong id="withdraw-item-name" style="color:var(--brand-dark);"></strong></p>
+            <input type="hidden" id="withdraw-item-id">
+            
+            <label style="font-size:0.8rem; font-weight:bold;">Quantidade a retirar:</label>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                <button class="btn-secondary" style="width:45px; height:45px; border-radius:10px; border:none; font-size:1.2rem; font-weight:bold; cursor:pointer;" onclick="adjustWithdraw(-1)">-</button>
+                <input type="number" id="withdraw-qty" class="form-control" value="1" min="1" style="margin:0; text-align:center; font-size:1.3rem; font-weight:800; height:45px;">
+                <button class="btn-primary" style="width:45px; height:45px; border-radius:10px; border:none; font-size:1.2rem; font-weight:bold; cursor:pointer;" onclick="adjustWithdraw(1)">+</button>
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-outline" style="margin:0;" onclick="closeModal('withdraw-modal')">Cancelar</button>
+                <button class="btn btn-primary" style="margin:0; background:#1565C0; border:none;" onclick="confirmWithdraw()"><i class="fas fa-hand-holding-box"></i> Confirmar Baixa</button>
+            </div>
+        </div>
+    </div>
     <nav class="bottom-nav">
         <a href="#" class="nav-item active" onclick="navTo('home')" data-target="home"><i class="fas fa-home"></i> Início</a>
         <a href="#" class="nav-item" onclick="navTo('finance')" data-target="finance"><i class="fas fa-chart-line"></i> Finanças</a>
@@ -453,20 +472,33 @@
 
 <script>
     // --- DATABASE ---
-const db = {
+// --- DATABASE COMPLETO (ERP NÍVEL 5) ---
+    const db = {
         insumos: [
             { id: 101, name: "Farinha de Trigo (Kg)", stock: 85, cost: 3.50, min: 20 },
             { id: 102, name: "Peito de Frango (Kg)", stock: 42, cost: 18.00, min: 15 },
             { id: 103, name: "Óleo de Soja (L)", stock: 12, cost: 6.50, min: 10 },
-            { id: 104, name: "Queijo Mussarela (Kg)", stock: 8, cost: 38.00, min: 5 }
+            { id: 104, name: "Queijo Mussarela (Kg)", stock: 18, cost: 38.00, min: 5 },
+            { id: 105, name: "Carne Bovina Moída (Kg)", stock: 25, cost: 28.00, min: 10 },
+            { id: 106, name: "Doce de Leite (Kg)", stock: 15, cost: 14.00, min: 5 },
+            { id: 107, name: "Embutidos/Salsicha (Kg)", stock: 30, cost: 12.00, min: 10 }
         ],
         products: [
-            { id: 1, name: "Mini Coxinha Frango (Pct 1kg)", cat: "Fritos", price: 25.00, stock: 30, ncmAtual: "1602.32.20", ncmSugestao: null, recipe: [{ id: 101, qty: 0.5 }, { id: 102, qty: 0.4 }, { id: 103, qty: 0.1 }] },
-            { id: 2, name: "Bolinha de Queijo (Pct 1kg)", cat: "Fritos", price: 28.00, stock: 15, ncmAtual: "1902.20.00", ncmSugestao: null, recipe: [{ id: 101, qty: 0.6 }, { id: 104, qty: 0.4 }, { id: 103, qty: 0.1 }] },
-            { id: 3, name: "Pão de Queijo (Pct 2kg)", cat: "Assados", price: 45.00, stock: 8, ncmAtual: "1905.90.90", ncmSugestao: "1901.20.00", taxDrop: "3.5%", recipe: [{ id: 101, qty: 0.8 }, { id: 104, qty: 0.8 }] }
+            { id: 1, name: "Mini Kibe Tradicional 1kg", cat: "Mini Fritos", price: 25.00, stock: 50, ncmAtual: "1602.32.20", recipe: [{ id: 101, qty: 0.4 }, { id: 105, qty: 0.5 }, { id: 103, qty: 0.1 }] },
+            { id: 2, name: "Bolinha de Queijo 1kg", cat: "Mini Fritos", price: 28.00, stock: 40, ncmAtual: "1902.20.00", recipe: [{ id: 101, qty: 0.6 }, { id: 104, qty: 0.4 }, { id: 103, qty: 0.1 }] },
+            { id: 3, name: "Mini Risoles Presunto/Queijo 1kg", cat: "Mini Fritos", price: 28.00, stock: 35, ncmAtual: "1902.20.00", recipe: [{ id: 101, qty: 0.5 }, { id: 104, qty: 0.3 }, { id: 107, qty: 0.2 }, { id: 103, qty: 0.1 }] },
+            { id: 4, name: "Mini Coxinha Frango 1kg", cat: "Mini Fritos", price: 25.00, stock: 60, ncmAtual: "1602.32.20", recipe: [{ id: 101, qty: 0.5 }, { id: 102, qty: 0.4 }, { id: 103, qty: 0.1 }] },
+            { id: 5, name: "Mini Churros Doce Leite 1kg", cat: "Mini Fritos", price: 30.00, stock: 20, ncmAtual: "1905.90.90", recipe: [{ id: 101, qty: 0.6 }, { id: 106, qty: 0.4 }, { id: 103, qty: 0.1 }] },
+            { id: 6, name: "Mini Folhado Calabresa 1kg", cat: "Folhados", price: 32.00, stock: 25, ncmAtual: "1602.32.90", recipe: [{ id: 101, qty: 0.6 }, { id: 107, qty: 0.3 }, { id: 103, qty: 0.1 }] },
+            { id: 7, name: "Mini Folhado Frango 1kg", cat: "Folhados", price: 32.00, stock: 25, ncmAtual: "1602.32.20", recipe: [{ id: 101, qty: 0.6 }, { id: 102, qty: 0.3 }, { id: 103, qty: 0.1 }] },
+            { id: 8, name: "Risole Frango 150g", cat: "Lanches", price: 6.50, stock: 100, ncmAtual: "1602.32.20", recipe: [{ id: 101, qty: 0.08 }, { id: 102, qty: 0.05 }, { id: 103, qty: 0.02 }] },
+            { id: 9, name: "Enrolado Salsicha", cat: "Lanches", price: 6.00, stock: 80, ncmAtual: "1602.32.90", recipe: [{ id: 101, qty: 0.08 }, { id: 107, qty: 0.06 }, { id: 103, qty: 0.01 }] },
+            { id: 10, name: "Empanada Carne/Cheddar", cat: "Empanadas", price: 7.00, stock: 40, ncmAtual: "1905.90.90", recipe: [{ id: 101, qty: 0.08 }, { id: 105, qty: 0.04 }, { id: 104, qty: 0.03 }] },
+            { id: 11, name: "Pão de Queijo 2kg", cat: "Pão de Queijo", price: 45.00, stock: 30, ncmAtual: "1905.90.90", ncmSugestao: "1901.20.00", taxDrop: "3.5%", recipe: [{ id: 101, qty: 0.8 }, { id: 104, qty: 0.8 }] },
+            { id: 12, name: "Quiche Lorraine", cat: "Assados", price: 8.00, stock: 15, ncmAtual: "1905.90.90", recipe: [{ id: 101, qty: 0.1 }, { id: 104, qty: 0.05 }, { id: 107, qty: 0.05 }] },
+            { id: 13, name: "Hambúrguer de Forno", cat: "Assados", price: 9.00, stock: 50, ncmAtual: "1602.32.90", recipe: [{ id: 101, qty: 0.1 }, { id: 105, qty: 0.1 }, { id: 104, qty: 0.02 }] }
         ],
         clients: ["Consumidor Final", "Padaria Central", "Mercado Silva"],
-        // NOVO: Histórico de Vendas com Status e Número de Nota
         sales: [
             { id: 1708290000000, nfNum: "000.001240", date: "16/02/2026", client: "Padaria Central", total: 450.00, status: "Paga" },
             { id: 1708376400000, nfNum: "000.001241", date: "17/02/2026", client: "Mercado Silva", total: 1280.00, status: "Pendente" },
@@ -827,15 +859,39 @@ function renderNFList() {
         });
     }
 
-    function promptWithdraw(id, name) {
-        const qty = prompt(`Quantas unidades de ${name} você retirou do almoxarifado?`);
-        if(qty && !isNaN(qty) && qty > 0) {
-            const insumo = db.insumos.find(x => x.id == id);
-            if(insumo.stock < qty) return showToast('Estoque insuficiente para esta retirada.', 'error');
-            insumo.stock -= parseFloat(qty);
-            showToast(`Retirada de ${qty}x ${name} registrada.`, 'success');
-            renderTabletRaw();
-        }
+function promptWithdraw(id, name) {
+        // Abre o modal customizado em vez do alert do navegador
+        document.getElementById('withdraw-item-id').value = id;
+        document.getElementById('withdraw-item-name').innerText = name;
+        document.getElementById('withdraw-qty').value = 1; // Reseta para 1
+        openModal('withdraw-modal');
+    }
+
+    function adjustWithdraw(delta) {
+        // Controla os botões de + e - dentro do modal
+        const input = document.getElementById('withdraw-qty');
+        let val = parseInt(input.value) || 0;
+        val += delta;
+        if (val < 1) val = 1; // Não deixa baixar menos que 1
+        input.value = val;
+    }
+
+    function confirmWithdraw() {
+        // Executa a baixa de fato
+        const id = document.getElementById('withdraw-item-id').value;
+        const qty = parseFloat(document.getElementById('withdraw-qty').value);
+        const name = document.getElementById('withdraw-item-name').innerText;
+        
+        const insumo = db.insumos.find(x => x.id == id);
+        
+        if(isNaN(qty) || qty <= 0) return showToast('Quantidade inválida.', 'error');
+        if(insumo.stock < qty) return showToast('Estoque insuficiente no almoxarifado.', 'error');
+        
+        insumo.stock -= qty;
+        showToast(`Retirada de ${qty}x ${name} registrada.`, 'success');
+        
+        closeModal('withdraw-modal');
+        renderTabletRaw(); // Atualiza a tela do tablet por trás
     }
 
     function requestInsumo(name) {
