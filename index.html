@@ -93,15 +93,68 @@
         .modal-overlay.open { display: flex; }
         .modal-content { background: white; width: 100%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 25px; max-height: 85%; overflow-y: auto; }
         .modal-center { align-items: center; } .modal-center .modal-content { width: 90%; border-radius: 24px; max-width: 400px; }
-        #toast-container { position: fixed; top: 20px; left: 0; right: 0; display: flex; justify-content: center; z-index: 2000; pointer-events: none; }
-        .toast { background: #333; color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s ease; box-shadow: var(--shadow); }
-        .toast.success { background: var(--success); } .toast.error { background: var(--brand-red); }
-        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+       /* ================= TOAST NOTIFICATIONS (AVISOS) ================= */
+        #toast-container {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; gap: 10px; z-index: 9999;
+            pointer-events: none; width: 90%; max-width: 400px;
+        }
+        
+        .toast {
+            background: white; color: var(--brand-dark); padding: 14px 16px; 
+            border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; 
+            gap: 12px; pointer-events: auto; position: relative; overflow: hidden; 
+            touch-action: none; /* Previne scroll da tela ao arrastar o toast */
+            border-left: 5px solid #333;
+            animation: slideDownToast 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--brand-red); }
+        .toast.info { border-left-color: var(--info); }
+        
+        .toast-icon { font-size: 1.3rem; }
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error .toast-icon { color: var(--brand-red); }
+        .toast.info .toast-icon { color: var(--info); }
+        
+        .toast-content { flex: 1; margin-top: 2px; }
+        
+        .toast-close {
+            background: none; border: none; color: #aaa; font-size: 1.2rem;
+            cursor: pointer; padding: 0; margin-left: auto; display: flex;
+            align-items: center; justify-content: center; width: 30px; height: 30px;
+            transition: color 0.2s;
+        }
+        .toast-close:hover { color: #333; }
+        
+        @keyframes slideDownToast { 
+            from { transform: translateY(-150%); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+        @keyframes slideUpOut { 
+            from { transform: translateY(0); opacity: 1; margin-top: 0; } 
+            to { transform: translateY(-150%); opacity: 0; margin-top: -60px; } 
+        }
         
         /* NFC & DANFE */
         .nfc-zone { text-align: center; padding: 30px; border: 2px dashed #ccc; border-radius: var(--radius); background: #f9f9f9; }
         .danfe-box { background: #fff; border: 1px solid #000; padding: 15px; font-family: 'Arial', sans-serif; font-size: 0.75rem; color: #000; }
         .barcode-mock { height: 35px; background: repeating-linear-gradient(90deg, #000, #000 2px, transparent 2px, transparent 4px, #000 4px, #000 5px, transparent 5px, transparent 8px); margin: 10px 0; }
+		/* NF List & Finance */
+        .nf-item {
+            background: white; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s;
+        }
+        .nf-item:active { transform: scale(0.98); }
+        .nf-info h4 { margin: 0 0 5px 0; font-size: 0.95rem; color: var(--brand-dark); }
+        .nf-info p { margin: 0; font-size: 0.8rem; color: #777; }
+        .nf-val { text-align: right; }
+        .nf-val strong { display: block; font-size: 1.05rem; }
+        .status-paga { background: #E8F5E9; color: #2E7D32; }
+        .status-pendente { background: #FFF3E0; color: #E65100; }
     </style>
 </head>
 <body>
@@ -212,6 +265,21 @@
             <div class="card">
                 <h4><i class="fas fa-building" style="color:var(--brand-yellow);"></i> Centro de Custo (Perdas/Desperdício)</h4>
                 <p style="font-size:0.85rem; color:#666;">Total de perdas registradas na produção: <strong>R$ 145,50</strong> (NFC Logs).</p>
+            </div>
+			<div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h4 style="margin:0;"><i class="fas fa-file-invoice" style="color:var(--info);"></i> Notas Fiscais Emitidas</h4>
+                    <select id="nf-client-filter" class="form-control" style="width:140px; margin:0; padding:6px; font-size:0.8rem;" onchange="renderNFList()">
+                        <option value="ALL">Todos os Clientes</option>
+                    </select>
+                </div>
+                
+                <div id="nf-list-container" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
+                
+                <div style="border-top:2px solid #eee; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.85rem; color:#666;">Total Filtrado:</span>
+                    <strong style="font-size:1.2rem; color:var(--brand-dark);" id="nf-total-filtered">R$ 0,00</strong>
+                </div>
             </div>
         </div>
 
@@ -352,7 +420,28 @@
             </div>
         </div>
     </div>
-
+<div id="nf-manage-modal" class="modal-overlay modal-center">
+        <div class="modal-content" style="max-width:400px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="margin:0;">NF-e <span id="manage-nf-num"></span></h3>
+                <span id="manage-nf-status" class="status-badge"></span>
+            </div>
+            <p style="font-size:0.85rem; color:#666; margin-top:0;">Cliente: <strong id="manage-nf-client"></strong></p>
+            
+            <div style="background:#f9f9f9; padding:15px; border-radius:12px; margin-bottom:20px; text-align:center;">
+                <span style="font-size:0.8rem; color:#777; display:block;">Valor Total da Nota</span>
+                <strong style="font-size:1.5rem; color:var(--brand-dark);">R$ <span id="manage-nf-total"></span></strong>
+            </div>
+            
+            <input type="hidden" id="manage-nf-id">
+            
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button class="btn btn-primary" id="btn-pay-nf" onclick="toggleNFStatus()" style="background:var(--success); border:none;"><i class="fas fa-check-circle"></i> Confirmar Recebimento</button>
+                <button class="btn btn-secondary" onclick="emitCCe()"><i class="fas fa-edit"></i> Emitir Carta de Correção (CC-e)</button>
+                <button class="btn btn-outline" style="margin:0;" onclick="closeModal('nf-manage-modal')">Fechar</button>
+            </div>
+        </div>
+    </div>
     <nav class="bottom-nav">
         <a href="#" class="nav-item active" onclick="navTo('home')" data-target="home"><i class="fas fa-home"></i> Início</a>
         <a href="#" class="nav-item" onclick="navTo('finance')" data-target="finance"><i class="fas fa-chart-line"></i> Finanças</a>
@@ -377,7 +466,12 @@ const db = {
             { id: 3, name: "Pão de Queijo (Pct 2kg)", cat: "Assados", price: 45.00, stock: 8, ncmAtual: "1905.90.90", ncmSugestao: "1901.20.00", taxDrop: "3.5%", recipe: [{ id: 101, qty: 0.8 }, { id: 104, qty: 0.8 }] }
         ],
         clients: ["Consumidor Final", "Padaria Central", "Mercado Silva"],
-        sales: [],
+        // NOVO: Histórico de Vendas com Status e Número de Nota
+        sales: [
+            { id: 1708290000000, nfNum: "000.001240", date: "16/02/2026", client: "Padaria Central", total: 450.00, status: "Paga" },
+            { id: 1708376400000, nfNum: "000.001241", date: "17/02/2026", client: "Mercado Silva", total: 1280.00, status: "Pendente" },
+            { id: 1708462800000, nfNum: "000.001242", date: "18/02/2026", client: "Consumidor Final", total: 125.00, status: "Paga" }
+        ],
         ops: [],
         cart: {},
         target: 50000
@@ -386,13 +480,91 @@ const db = {
     let opCounter = 1000;
 
     // --- UTILS ---
+// --- UX: TOAST NOTIFICATIONS (MODERNAS) ---
     function showToast(msg, type = 'success') {
-        const c = document.getElementById('toast-container');
-        const t = document.createElement('div');
-        t.className = `toast ${type}`;
-        t.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-triangle'}"></i> <span>${msg}</span>`;
-        c.appendChild(t);
-        setTimeout(() => { t.style.animation = 'fadeOut 0.4s forwards'; t.addEventListener('animationend', () => t.remove()); }, 3500);
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        // Define o ícone com base no tipo
+        const iconMap = { 'success': 'fa-check-circle', 'error': 'fa-exclamation-triangle', 'info': 'fa-info-circle' };
+        const icon = iconMap[type] || iconMap['info'];
+
+        // Estrutura HTML do Toast com o X de fechar
+        toast.innerHTML = `
+            <i class="fas ${icon} toast-icon"></i>
+            <div class="toast-content">${msg}</div>
+            <button class="toast-close"><i class="fas fa-times"></i></button>
+        `;
+        
+        container.appendChild(toast);
+
+        let isClosing = false;
+        
+        // Função para remover o aviso
+        const closeToast = () => {
+            if (isClosing) return;
+            isClosing = true;
+            toast.style.animation = 'slideUpOut 0.4s forwards';
+            setTimeout(() => toast.remove(), 400); // Remove do DOM após a animação
+        };
+
+        // Evento de clique no X
+        toast.querySelector('.toast-close').addEventListener('click', closeToast);
+
+        // Auto-remover após 4 segundos
+        let autoCloseTimeout = setTimeout(closeToast, 4000);
+
+        // --- Lógica de Arrastar para Cima (Drag / Swipe) ---
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+
+        const onDragStart = (e) => {
+            isDragging = true;
+            startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            toast.style.transition = 'none'; // Desativa transição para seguir o dedo perfeitamente
+            clearTimeout(autoCloseTimeout); // Pausa o timer se o usuário segurar o aviso
+        };
+
+        const onDragMove = (e) => {
+            if (!isDragging) return;
+            currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            const diff = currentY - startY;
+            
+            // Só permite arrastar para cima (valores negativos)
+            if (diff < 0) {
+                toast.style.transform = `translateY(${diff}px)`;
+                toast.style.opacity = 1 - (Math.abs(diff) / 100); // Vai ficando transparente
+            }
+        };
+
+        const onDragEnd = (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            toast.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+            
+            const diff = currentY - startY;
+            
+            // Se arrastou mais de 35px pra cima, fecha. Se não, volta pro lugar.
+            if (diff < -35) {
+                closeToast();
+            } else {
+                toast.style.transform = 'translateY(0)';
+                toast.style.opacity = '1';
+                autoCloseTimeout = setTimeout(closeToast, 3000); // Retoma o timer
+            }
+        };
+
+        // Eventos de Touch (Celular)
+        toast.addEventListener('touchstart', onDragStart, {passive: true});
+        toast.addEventListener('touchmove', onDragMove, {passive: true});
+        toast.addEventListener('touchend', onDragEnd);
+        
+        // Eventos de Mouse (Computador)
+        toast.addEventListener('mousedown', onDragStart);
+        document.addEventListener('mousemove', onDragMove);
+        document.addEventListener('mouseup', onDragEnd);
     }
     function openModal(id) { document.getElementById(id).classList.add('open'); }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -422,24 +594,26 @@ const db = {
     }
 
 function renderFinance() {
-        // Puxa as vendas reais que você for fechando na apresentação
+        // Atualiza os seletores de cliente no filtro
+        const sel = document.getElementById('nf-client-filter');
+        const currentVal = sel.value;
+        sel.innerHTML = '<option value="ALL">Todos os Clientes</option>';
+        db.clients.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+        sel.value = currentVal || "ALL";
+
+        // Chama a renderização da lista
+        renderNFList();
+
+        // O resto do cálculo do DRE (Copia o que te mandei na interação anterior)
         const totalVendas = db.sales.reduce((a, b) => a + b.total, 0);
-        
-        // Impostos e Líquida
-        const imposto = totalVendas * 0.068; // Exemplo Simples Nacional
+        const imposto = totalVendas * 0.068; 
         const liquida = totalVendas - imposto;
-        
-        // CMV Dinâmico (simulando 38.4% de custo da indústria base)
         let cmvReal = totalVendas * 0.384; 
-        if(cmvReal === 0 && totalVendas === 0) cmvReal = 1840; // Fallback se não tiver vendas ainda
-        
+        if(cmvReal === 0 && totalVendas === 0) cmvReal = 1840; 
         const despesasFixas = 4500;
         const lucro = liquida - cmvReal - despesasFixas;
 
-        // Atualiza a tela superior
         document.getElementById('fin-receber').innerText = totalVendas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-        
-        // Atualiza a DRE
         document.getElementById('dre-receita').innerText = totalVendas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
         document.getElementById('dre-imposto').innerText = imposto.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
         document.getElementById('dre-liquida').innerText = liquida.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -449,7 +623,77 @@ function renderFinance() {
         lucroEl.innerText = lucro.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
         lucroEl.style.color = lucro >= 0 ? 'green' : 'red';
     }
+function renderNFList() {
+        const container = document.getElementById('nf-list-container');
+        const filter = document.getElementById('nf-client-filter').value;
+        container.innerHTML = '';
+        
+        let filteredSales = db.sales;
+        if(filter !== "ALL") {
+            filteredSales = db.sales.filter(s => s.client === filter);
+        }
 
+        let totalFiltered = 0;
+
+        filteredSales.forEach(sale => {
+            totalFiltered += sale.total;
+            const statusClass = sale.status === 'Paga' ? 'status-paga' : 'status-pendente';
+            container.innerHTML += `
+            <div class="nf-item" onclick="openNFManage(${sale.id})">
+                <div class="nf-info">
+                    <h4>NF-e ${sale.nfNum}</h4>
+                    <p>${sale.client} • ${sale.date}</p>
+                </div>
+                <div class="nf-val">
+                    <strong>R$ ${sale.total.toFixed(2)}</strong>
+                    <span class="status-badge ${statusClass}">${sale.status}</span>
+                </div>
+            </div>`;
+        });
+
+        if(filteredSales.length === 0) container.innerHTML = '<p style="text-align:center; color:#999; font-size:0.9rem;">Nenhuma nota encontrada.</p>';
+        document.getElementById('nf-total-filtered').innerText = totalFiltered.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    }
+	function openNFManage(id) {
+        const sale = db.sales.find(s => s.id === id);
+        document.getElementById('manage-nf-id').value = sale.id;
+        document.getElementById('manage-nf-num').innerText = sale.nfNum;
+        document.getElementById('manage-nf-client').innerText = sale.client;
+        document.getElementById('manage-nf-total').innerText = sale.total.toFixed(2);
+        
+        const statusEl = document.getElementById('manage-nf-status');
+        statusEl.innerText = sale.status;
+        statusEl.className = 'status-badge ' + (sale.status === 'Paga' ? 'status-paga' : 'status-pendente');
+
+        const btnPay = document.getElementById('btn-pay-nf');
+        if(sale.status === 'Paga') {
+            btnPay.style.display = 'none';
+        } else {
+            btnPay.style.display = 'block';
+        }
+
+        openModal('nf-manage-modal');
+    }
+
+    function toggleNFStatus() {
+        const id = parseInt(document.getElementById('manage-nf-id').value);
+        const sale = db.sales.find(s => s.id === id);
+        sale.status = 'Paga';
+        showToast(`Pagamento da NF-e ${sale.nfNum} confirmado!`, 'success');
+        closeModal('nf-manage-modal');
+        renderFinance(); // Re-renderiza a lista
+    }
+
+    function emitCCe() {
+        const num = document.getElementById('manage-nf-num').innerText;
+        const motivo = prompt(`Digite a justificativa para a Carta de Correção da NF-e ${num}:`);
+        if(motivo && motivo.length > 10) {
+            showToast('Carta de Correção Eletrônica (CC-e) transmitida à Sefaz.', 'success');
+            closeModal('nf-manage-modal');
+        } else if(motivo) {
+            showToast('A Sefaz exige no mínimo 15 caracteres na justificativa.', 'error');
+        }
+    }
     // --- 2. PRODUÇÃO (BOM & OP Workflow) ---
     function switchProdTab(tab) {
         ['nova', 'lista', 'nfc'].forEach(t => {
@@ -563,16 +807,39 @@ function renderFinance() {
         document.getElementById('nfc-unlocked').style.display = 'none';
         document.getElementById('nfc-locked').style.display = 'block';
     }
+// --- MÓDULO: CHÃO DE FÁBRICA (NFC COMPLETO) ---
     function renderTabletRaw() {
         const c = document.getElementById('tablet-raw-list');
         c.innerHTML = '';
         db.insumos.forEach(i => {
             c.innerHTML += `
-            <div class="product-item">
-                <div class="prod-info"><h4>${i.name}</h4><p>Físico: <b>${i.stock.toFixed(2)}</b> disp.</p></div>
-                <button class="btn-small btn-primary" onclick="openLossModal(${i.id}, '${i.name}')">Registrar Perda</button>
+            <div class="product-item" style="flex-direction:column; gap:10px; align-items:stretch;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="margin:0; font-size:1rem;">${i.name}</h4>
+                    <span style="font-size:0.85rem; color:#555;">Estoque: <b>${i.stock.toFixed(2)}</b></span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;">
+                    <button class="btn-small" style="background:#1565C0; color:white; border:none; border-radius:6px; padding:10px 5px;" onclick="promptWithdraw(${i.id}, '${i.name}')"><i class="fas fa-hand-holding-box"></i> Baixar</button>
+                    <button class="btn-small" style="background:var(--brand-red); color:white; border:none; border-radius:6px; padding:10px 5px;" onclick="openLossModal(${i.id}, '${i.name}')"><i class="fas fa-trash"></i> Perda</button>
+                    <button class="btn-small" style="background:var(--brand-yellow); color:var(--brand-dark); border:none; border-radius:6px; padding:10px 5px;" onclick="requestInsumo('${i.name}')"><i class="fas fa-bell"></i> Pedir</button>
+                </div>
             </div>`;
         });
+    }
+
+    function promptWithdraw(id, name) {
+        const qty = prompt(`Quantas unidades de ${name} você retirou do almoxarifado?`);
+        if(qty && !isNaN(qty) && qty > 0) {
+            const insumo = db.insumos.find(x => x.id == id);
+            if(insumo.stock < qty) return showToast('Estoque insuficiente para esta retirada.', 'error');
+            insumo.stock -= parseFloat(qty);
+            showToast(`Retirada de ${qty}x ${name} registrada.`, 'success');
+            renderTabletRaw();
+        }
+    }
+
+    function requestInsumo(name) {
+        showToast(`Alerta de Suprimento: Pedido de ${name} enviado ao setor de Compras!`, 'info');
     }
     function openLossModal(id, name) {
         document.getElementById('loss-item-id').value = id;
