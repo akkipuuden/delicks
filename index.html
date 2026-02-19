@@ -3,214 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Delick's App">
-    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/e87d5a_121fa3ebb2984c7485b6f88a86e6f70a~mv2.png">
-    
-    <title>Delick's - Gestão</title>
+    <title>Delick's - ERP Industrial V5</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
         :root {
-            --brand-yellow: #FFD600;
-            --brand-red: #C62828;
-            --brand-dark: #3E2723;
-            --bg-body: #E0E0E0;
-            --bg-app: #FAFAFA;
-            --surface: #FFFFFF;
-            --success: #43A047;
-            --radius: 16px;
-            --shadow: 0 8px 24px rgba(0,0,0,0.08);
+            --brand-yellow: #FFD600; --brand-red: #C62828; --brand-dark: #3E2723;
+            --bg-body: #ECEFF1; --bg-app: #FAFAFA; --surface: #FFFFFF;
+            --success: #43A047; --warning: #FF8F00; --info: #1E88E5; --purple: #8E24AA;
+            --radius: 16px; --shadow: 0 8px 24px rgba(0,0,0,0.08);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Nunito', sans-serif; background-color: var(--bg-body); color: var(--brand-dark); margin: 0; padding: 0; height: 100vh; display: flex; justify-content: center; }
         
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--brand-dark);
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-        }
+        #app-wrapper { width: 100%; max-width: 480px; background-color: var(--bg-app); height: 100%; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        #main-content { flex: 1; overflow-y: auto; padding-bottom: 90px; scroll-behavior: smooth; }
 
-        #app-wrapper {
-            width: 100%;
-            max-width: 480px;
-            background-color: var(--bg-app);
-            height: 100%;
-            position: relative;
-            box-shadow: 0 0 40px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        #main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding-bottom: 90px;
-            scroll-behavior: smooth;
-        }
-
-        /* Header */
-        header {
-            background-color: var(--brand-yellow);
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .brand-logo { height: 45px; object-fit: contain; }
-        .header-actions button {
-            background: rgba(255,255,255,0.3); border: none; width: 35px; height: 35px;
-            border-radius: 50%; color: var(--brand-red); font-size: 1.1rem; cursor: pointer;
-        }
-
-        /* Views */
+        header { background-color: var(--brand-yellow); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
+        .brand-logo { height: 40px; object-fit: contain; }
+        
         .view { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* UI Components */
-        h2 { color: var(--brand-red); margin-top: 0; font-weight: 800; }
+        h2 { color: var(--brand-dark); margin-top: 0; font-weight: 800; }
+        h3 { color: var(--brand-red); margin-top: 0; }
+        h4 { margin: 0 0 10px 0; color: var(--brand-dark); }
+        .card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.02); }
         
-        .card {
-            background: var(--surface); border-radius: var(--radius); padding: 20px;
-            box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.02);
-        }
-
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-box {
-            background: white; padding: 15px; border-radius: var(--radius); text-align: center;
-            box-shadow: var(--shadow); border-bottom: 4px solid var(--brand-yellow);
-        }
-        .stat-value { font-size: 1.4rem; font-weight: 800; color: var(--brand-red); display: block; }
-        .stat-label { font-size: 0.8rem; color: #777; font-weight: 600; }
-
+        /* Dashboards & Grids */
+        .ai-card { background: linear-gradient(135deg, #1E88E5, #1565C0); color: white; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; position: relative; overflow: hidden; }
+        .ai-card i.bg-icon { position: absolute; right: -10px; bottom: -10px; font-size: 6rem; opacity: 0.1; }
+        
+        .tax-card { background: linear-gradient(135deg, var(--purple), #6A1B9A); color: white; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: white; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
+        .stat-val { font-size: 1.2rem; font-weight: 800; display: block; margin-top: 5px; }
+        
         .progress-track { background: #EEEEEE; height: 12px; border-radius: 10px; overflow: hidden; margin-top: 10px; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--brand-yellow), orange); width: 0%; transition: width 1s ease; }
 
-        .category-title {
-            color: var(--brand-dark); font-size: 1.2rem; font-weight: 800;
-            margin: 25px 0 10px 0; padding-left: 10px; border-left: 4px solid var(--brand-yellow);
-        }
+        /* OP Status Badges */
+        .status-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 8px; font-weight: bold; }
+        .status-aberta { background: #E3F2FD; color: #1565C0; }
+        .status-producao { background: #FFF3E0; color: #E65100; }
+        .status-concluida { background: #E8F5E9; color: #2E7D32; }
+        .status-cancelada { background: #FFEBEE; color: #C62828; }
 
-        .product-item {
-            background: white; padding: 15px; margin-bottom: 12px; border-radius: var(--radius);
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: transform 0.1s;
-        }
-        .product-item:active { transform: scale(0.98); }
-
-        .prod-info h4 { margin: 0; color: var(--brand-dark); }
-        .prod-info p { margin: 4px 0 0 0; font-size: 0.9rem; color: #777; }
+        /* Tables & Lists */
+        .dre-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 10px; }
+        .dre-table td { padding: 8px 0; border-bottom: 1px dashed #eee; }
+        .dre-table tr.total td { font-weight: 800; border-top: 2px solid #ccc; font-size: 0.95rem; }
         
-        .stock-tag { font-size: 0.7rem; background: #F5F5F5; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
-        .stock-warn { color: red; background: #FFEBEE; }
-        .stock-ok { color: green; background: #E8F5E9; }
+        .product-item { background: white; padding: 15px; margin-bottom: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
+        .prod-info h4 { font-size: 0.95rem; }
+        .prod-info p { margin: 4px 0 0 0; font-size: 0.8rem; color: #777; }
 
-        .qty-wrapper {
-            display: flex; align-items: center; background: #F5F5F5;
-            border-radius: 20px; padding: 3px;
-        }
-        .qty-btn {
-            width: 32px; height: 32px; border-radius: 50%; border: none; background: white;
-            color: var(--brand-red); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;
-        }
-        .qty-val { width: 30px; text-align: center; font-weight: 700; font-size: 0.9rem; }
-
-        .btn {
-            width: 100%; padding: 16px; border-radius: 12px; border: none; font-family: inherit;
-            font-weight: 700; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; margin-bottom: 10px;
-        }
+        /* Forms & Buttons */
+        .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary { background: var(--brand-red); color: white; box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3); }
         .btn-secondary { background: var(--brand-yellow); color: var(--brand-dark); }
-        .btn-danger { background: #ffebee; color: var(--brand-red); }
-        .btn:active { opacity: 0.8; }
-
-        .form-control {
-            width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px;
-            font-family: inherit; margin-bottom: 15px; background: white; outline: none;
-        }
-        .form-control:focus { border-color: var(--brand-yellow); }
+        .btn-outline { background: transparent; border: 2px solid #ccc; color: #555; }
+        .btn-small { padding: 6px 12px; font-size: 0.8rem; width: auto; margin:0; }
+        .form-control { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; margin-bottom: 10px; font-family: inherit; outline: none; }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { padding: 8px 15px; background: #eee; border-radius: 20px; border: none; font-size: 0.85rem; font-weight: bold; color: #555; white-space: nowrap; cursor: pointer; }
+        .tab-btn.active { background: var(--brand-dark); color: var(--brand-yellow); }
 
         /* Nav */
-        .bottom-nav {
-            position: absolute; bottom: 0; left: 0; width: 100%; background: white;
-            display: flex; justify-content: space-around; padding: 12px 0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05); z-index: 100;
-        }
-        .nav-item {
-            text-align: center; color: #9E9E9E; font-size: 0.75rem; text-decoration: none;
-            flex: 1; transition: color 0.3s;
-        }
-        .nav-item i { font-size: 1.4rem; margin-bottom: 4px; display: block; }
-        .nav-item.active { color: var(--brand-red); }
+        .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); z-index: 100; border-top: 1px solid #eee; }
+        .nav-item { text-align: center; color: #9E9E9E; font-size: 0.7rem; text-decoration: none; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item.active { color: var(--brand-red); font-weight: bold; }
 
         /* Cart Float */
-        .cart-float {
-            position: absolute; bottom: 90px; right: 20px; background: var(--brand-red);
-            color: white; width: 60px; height: 60px; border-radius: 50%; display: none;
-            align-items: center; justify-content: center; font-size: 1.5rem;
-            box-shadow: 0 4px 15px rgba(198, 40, 40, 0.4); cursor: pointer; z-index: 90;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .cart-badge {
-            position: absolute; top: -5px; right: -5px; background: var(--brand-yellow);
-            color: var(--brand-dark); width: 22px; height: 22px; border-radius: 50%;
-            font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center;
-        }
-        @keyframes popIn { from{transform: scale(0);} to{transform: scale(1);} }
+        .cart-float { position: absolute; bottom: 90px; right: 20px; background: var(--brand-red); color: white; width: 60px; height: 60px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(198, 40, 40, 0.4); cursor: pointer; z-index: 90; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--brand-yellow); color: var(--brand-dark); width: 22px; height: 22px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 
-        /* TOAST NOTIFICATIONS */
-        #toast-container {
-            position: fixed; top: 20px; left: 0; right: 0; display: flex; justify-content: center; 
-            z-index: 2000; pointer-events: none;
-        }
-        .toast {
-            background: #333; color: white; padding: 12px 24px; border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-size: 0.9rem; font-weight: 600;
-            margin-bottom: 10px; animation: slideDown 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            display: flex; align-items: center; gap: 10px; pointer-events: auto;
-        }
-        .toast.success { background: var(--success); }
-        .toast.error { background: var(--brand-red); }
-        .toast i { font-size: 1.1rem; }
-        
-        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
-
-        /* MODALS */
-        .modal-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);
-            z-index: 200; display: none; justify-content: center; align-items: flex-end;
-        }
+        /* Modals & Toasts */
+        .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; justify-content: center; align-items: flex-end; }
         .modal-overlay.open { display: flex; }
-        .modal-center { align-items: center; }
+        .modal-content { background: white; width: 100%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 25px; max-height: 85%; overflow-y: auto; }
+        .modal-center { align-items: center; } .modal-center .modal-content { width: 90%; border-radius: 24px; max-width: 400px; }
+        #toast-container { position: fixed; top: 20px; left: 0; right: 0; display: flex; justify-content: center; z-index: 2000; pointer-events: none; }
+        .toast { background: #333; color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s ease; box-shadow: var(--shadow); }
+        .toast.success { background: var(--success); } .toast.error { background: var(--brand-red); }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .modal-content {
-            background: white; width: 100%; border-top-left-radius: 24px; border-top-right-radius: 24px;
-            padding: 25px; max-height: 85%; overflow-y: auto; animation: slideUp 0.3s ease;
-        }
-        .modal-center .modal-content {
-            width: 90%; border-radius: 24px; max-width: 400px; animation: popIn 0.3s ease;
-        }
-        @keyframes slideUp { from{transform: translateY(100%);} to{transform: translateY(0);} }
-        @keyframes popIn { from{transform: scale(0.9); opacity:0;} to{transform: scale(1); opacity:1;} }
-
-        .cart-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; }
+        /* NFC & DANFE */
+        .nfc-zone { text-align: center; padding: 30px; border: 2px dashed #ccc; border-radius: var(--radius); background: #f9f9f9; }
+        .danfe-box { background: #fff; border: 1px solid #000; padding: 15px; font-family: 'Arial', sans-serif; font-size: 0.75rem; color: #000; }
+        .barcode-mock { height: 35px; background: repeating-linear-gradient(90deg, #000, #000 2px, transparent 2px, transparent 4px, #000 4px, #000 5px, transparent 5px, transparent 8px); margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -220,79 +111,195 @@
 
     <header>
         <img src="https://static.wixstatic.com/media/e87d5a_121fa3ebb2984c7485b6f88a86e6f70a~mv2.png" alt="Delick's" class="brand-logo">
-        <div class="header-actions">
-            <button onclick="navTo('home')"><i class="fas fa-home"></i></button>
-        </div>
+        <div style="color:var(--brand-dark); font-weight:bold; font-size:0.9rem;"><i class="fas fa-industry"></i> Indústria V5</div>
     </header>
 
     <div id="main-content">
         
         <div id="view-home" class="view active">
-            <div style="margin-bottom: 20px;">
-                <h2 style="color: var(--brand-dark); margin-bottom: 5px;">Olá, Gestor!</h2>
-                <span style="color: #777;">Acompanhamento mensal de vendas</span>
+            <div class="card" style="padding-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <h3 style="margin:0; color: var(--brand-dark);">Progresso Mensal</h3>
+                    <span style="font-weight:700; color:var(--brand-red);" id="progress-txt">0%</span>
+                </div>
+                <div class="progress-track"><div class="progress-fill" id="progress-bar"></div></div>
+                <p style="text-align:right; font-size:0.8rem; color:#999; margin-top:5px;">Meta: <span id="target-val">R$ 50.000,00</span></p>
             </div>
 
-            <div class="stats-row">
-                <div class="stat-box">
-                    <span class="stat-value" id="month-sales">R$ 0</span>
-                    <span class="stat-label">Vendas Mês</span>
+            <div class="ai-card">
+                <i class="fas fa-chart-line bg-icon"></i>
+                <h3 style="color:var(--brand-yellow); margin-bottom:5px;"><i class="fas fa-tachometer-alt"></i> Performance Industrial</h3>
+                <div class="stats-grid" style="margin-top:15px; margin-bottom:0;">
+                    <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; text-align:center;">
+                        <span style="font-size:0.8rem; opacity:0.8;">CMV Global</span>
+                        <strong style="display:block; font-size:1.2rem;">38.4%</strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; text-align:center;">
+                        <span style="font-size:0.8rem; opacity:0.8;">Taxa de Perda</span>
+                        <strong style="display:block; font-size:1.2rem; color:#69F0AE;">1.2%</strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; text-align:center;">
+                        <span style="font-size:0.8rem; opacity:0.8;">Giro Estoque</span>
+                        <strong style="display:block; font-size:1.2rem;">14 dias</strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; text-align:center;">
+                        <span style="font-size:0.8rem; opacity:0.8;">Produto Curva A</span>
+                        <strong style="display:block; font-size:1rem;">Mini Kibe</strong>
+                    </div>
                 </div>
+            </div>
+
+<div class="tax-card">
+                <h3 style="color:var(--brand-yellow); margin-bottom:5px;"><i class="fas fa-balance-scale"></i> Auditoria Fiscal IA (NCM)</h3>
+                <p style="font-size:0.85rem; margin:0 0 10px 0; opacity: 0.9;">O sistema varreu seus produtos em busca de elisão fiscal.</p>
+                
+                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; margin-bottom:8px;">
+                        <strong>Pão de Queijo (Pct 2kg)</strong>
+                        <span class="status-badge" style="background:#FF8A80; color:#b71c1c;">NCM Atual: 1905.90.90</span>
+                    </div>
+                    <div style="color:#69F0AE; margin-bottom:8px; line-height:1.4;">
+                        <i class="fas fa-lightbulb"></i> <strong>Sugestão de Enquadramento:</strong><br>
+                        Alterar para NCM <strong>1901.20.00</strong> (Misturas para produtos de padaria).
+                    </div>
+                    <div style="font-size:0.8rem; border-top:1px dashed rgba(255,255,255,0.2); padding-top:8px;">
+                        Impacto: Redução de <strong>3.5%</strong> no ICMS-ST / PIS-COFINS.
+                        <br>Economia projetada: <strong>R$ 1.250,00/mês</strong>.
+                    </div>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; background:rgba(255,255,255,0.1); padding:8px; border-radius:8px;">
+                    <span>Regime Tributário Ideal Atual:</span>
+                    <span style="color:#69F0AE; font-weight:bold;">Simples Nacional</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-finance" class="view">
+            <h2>Gestão Financeira</h2>
+            
+            <div class="stats-grid">
                 <div class="stat-box">
-                    <span class="stat-value" id="stock-alert">0</span>
-                    <span class="stat-label">Estoque Baixo</span>
+                    <span style="font-size:0.8rem; color:#777;">Caixa Atual</span>
+                    <span class="stat-val val-dark">R$ 24.500,00</span>
+                </div>
+                <div class="stat-box" style="border-left: 3px solid var(--success);">
+                    <span style="font-size:0.8rem; color:#777;">A Receber (Vendas)</span>
+                    <span class="stat-val" style="color:var(--success)" id="fin-receber">R$ 0,00</span>
+                </div>
+                <div class="stat-box" style="border-left: 3px solid var(--brand-red);">
+                    <span style="font-size:0.8rem; color:#777;">A Pagar (Insumos)</span>
+                    <span class="stat-val" style="color:var(--brand-red)">R$ 3.150,00</span>
+                </div>
+                <div class="stat-box" style="border-left: 3px solid var(--info);">
+                    <span style="font-size:0.8rem; color:#777;">Fluxo Projetado (30d)</span>
+                    <span class="stat-val" style="color:var(--info)">+ R$ 5.170,00</span>
                 </div>
             </div>
 
             <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-                    <h3 style="margin:0; color: var(--brand-dark);">Meta Mensal</h3>
-                    <span style="font-weight:700; color:var(--brand-red);" id="progress-txt">0%</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill" id="progress-bar"></div>
-                </div>
-                <p style="text-align:right; font-size:0.8rem; color:#999; margin-top:5px;">Alvo: R$ 50.000,00</p>
+                <h4><i class="fas fa-file-invoice-dollar" style="color:var(--brand-yellow);"></i> DRE Simplificado (Mês Atual)</h4>
+<table class="dre-table">
+                    <tr><td>Receita Bruta de Vendas</td><td style="text-align:right; color:green;" id="dre-receita">R$ 0,00</td></tr>
+                    <tr><td>(-) Impostos Incidentes (6.8%)</td><td style="text-align:right; color:red;" id="dre-imposto">R$ 0,00</td></tr>
+                    <tr style="background:#f9f9f9; font-weight:bold;"><td>(=) Receita Líquida</td><td style="text-align:right;" id="dre-liquida">R$ 0,00</td></tr>
+                    <tr><td>(-) CMV (Custo Insumos Baixados)</td><td style="text-align:right; color:red;" id="dre-cmv">R$ 0,00</td></tr>
+                    <tr><td>(-) Despesas Fixas / Operacionais</td><td style="text-align:right; color:red;">R$ 4.500,00</td></tr>
+                    <tr class="total"><td>(=) Lucro Líquido Operacional</td><td style="text-align:right; color:green;" id="dre-lucro">R$ 0,00</td></tr>
+                </table>
             </div>
-
-            <button class="btn btn-primary" onclick="navTo('sales')">
-                <i class="fas fa-plus-circle" style="margin-right:8px;"></i> Nova Venda
-            </button>
+            
+            <div class="card">
+                <h4><i class="fas fa-building" style="color:var(--brand-yellow);"></i> Centro de Custo (Perdas/Desperdício)</h4>
+                <p style="font-size:0.85rem; color:#666;">Total de perdas registradas na produção: <strong>R$ 145,50</strong> (NFC Logs).</p>
+            </div>
         </div>
 
-        <div id="view-sales" class="view">
-            <h2>Realizar Pedido</h2>
-            
-            <div style="background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                <label style="font-size:0.8rem; font-weight:700; color:#999; display:block; margin-bottom:5px;">CLIENTE</label>
-                <div style="display:flex; gap:10px;">
-                    <select id="client-select" class="form-control" style="margin:0;">
-                        <option value="">Selecione...</option>
-                    </select>
-                    <button class="btn btn-secondary" style="width:auto; margin:0;" onclick="openAddClientModal()">
-                        <i class="fas fa-plus"></i>
-                    </button>
+        <div id="view-production" class="view">
+            <h2>Chão de Fábrica</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchProdTab('nova')" id="tab-nova">Nova OP</button>
+                <button class="tab-btn" onclick="switchProdTab('lista')" id="tab-lista">Gestão de OPs</button>
+                <button class="tab-btn" onclick="switchProdTab('nfc')" id="tab-nfc">Tablet NFC</button>
+            </div>
+
+            <div id="prod-nova-content">
+                <div class="card">
+                    <p style="font-size:0.85rem; color:#666; margin-top:0;">Gere OPs integradas com a Ficha Técnica (BOM).</p>
+                    <label style="font-size:0.8rem; font-weight:bold;">Produto a Fabricar:</label>
+                    <select id="op-product" class="form-control" onchange="previewBOM()"></select>
+                    <label style="font-size:0.8rem; font-weight:bold;">Quantidade (Lotes):</label>
+                    <input type="number" id="op-qty" class="form-control" value="1" min="1" onchange="previewBOM()">
+                    
+                    <div id="bom-preview" style="background:#f5f5f5; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85rem; display:none;"></div>
+                    <button class="btn btn-primary" onclick="createOP()"><i class="fas fa-plus"></i> Abrir Ordem de Produção</button>
                 </div>
             </div>
 
-            <div id="catalog-container"></div>
+            <div id="prod-lista-content" style="display:none;">
+                <div id="op-list-container"></div>
+            </div>
+
+            <div id="prod-nfc-content" style="display:none;">
+                <div id="nfc-locked" class="nfc-zone">
+                    <i class="fas fa-id-badge" style="font-size:3rem; color:var(--info); cursor:pointer; margin-bottom:15px;" onclick="simulateNFC()"></i>
+                    <h3>Autenticação Necessária</h3>
+                    <p style="font-size:0.85rem; color:#777;">Aproxime o crachá do operador para retirar insumos ou registrar perdas no Centro de Custo.</p>
+                </div>
+                <div id="nfc-unlocked" style="display:none;">
+                    <div class="card" style="background:var(--brand-yellow); padding:15px; display:flex; justify-content:space-between; align-items:center;">
+                        <div><strong>Op: Carlos Moura</strong><br><small>Turno 1 - Cozinha</small></div>
+                        <button class="btn" style="width:auto; padding:5px 10px; background:rgba(0,0,0,0.1); margin:0;" onclick="lockNFC()">Sair</button>
+                    </div>
+                    <h4>Apontamento de Perda / Sobra</h4>
+                    <div id="tablet-raw-list"></div>
+                </div>
+            </div>
         </div>
 
         <div id="view-stock" class="view">
-            <h2>Gestão de Estoque</h2>
-            <div id="stock-list-container"></div>
+            <h2>Estoque e Compras</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchStockTab('raw')" id="tab-raw">Matéria-Prima</button>
+                <button class="tab-btn" onclick="switchStockTab('finished')" id="tab-finished">Produtos Prontos</button>
+                <button class="tab-btn" onclick="switchStockTab('nfe')" id="tab-nfe">Entrada NF-e</button>
+            </div>
+            <div id="stock-raw-content"></div>
+            <div id="stock-finished-content" style="display:none;"></div>
+            <div id="stock-nfe-content" style="display:none;">
+                <div class="card nfc-zone">
+                    <i class="fas fa-barcode" style="font-size:3rem; color:var(--brand-dark); margin-bottom:15px;"></i>
+                    <p style="font-size:0.9rem;">Escaneie o XML do fornecedor para dar entrada nos insumos.</p>
+                    <input type="text" id="nf-key" class="form-control" value="35231012345678000199550010001234561001234567" style="text-align:center; font-size:0.8rem;">
+                    <button class="btn btn-primary" onclick="processNFE()">Processar XML</button>
+                </div>
+            </div>
         </div>
 
-        <div id="view-clients" class="view">
-            <h2>Meus Clientes</h2>
-            <button class="btn btn-primary" onclick="openAddClientModal()"><i class="fas fa-user-plus"></i> Novo Cliente</button>
-            <p style="color:#999; font-size:0.9rem; margin-top:20px;">Toque em um cliente para editar ou excluir.</p>
-            <ul id="clients-list" style="list-style:none; padding:0; margin-top: 10px;"></ul>
+        <div id="view-sales" class="view">
+            <h2>Comercial</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchSalesTab('pdv')" id="tab-pdv">PDV (Nova Venda)</button>
+                <button class="tab-btn" onclick="switchSalesTab('cli')" id="tab-cli">Meus Clientes</button>
+            </div>
+
+            <div id="sales-pdv-content">
+                <div style="background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee;">
+                    <label style="font-size:0.8rem; font-weight:700; color:#999; display:block; margin-bottom:5px;">CLIENTE (DESTINATÁRIO)</label>
+                    <select id="client-select" class="form-control" style="margin:0;"></select>
+                </div>
+                <div id="catalog-container"></div>
+            </div>
+
+            <div id="sales-cli-content" style="display:none;">
+                <button class="btn btn-primary" onclick="openModal('client-modal')"><i class="fas fa-user-plus"></i> Novo Cliente</button>
+                <ul id="clients-list" style="list-style:none; padding:0; margin-top: 10px;"></ul>
+            </div>
         </div>
 
     </div>
 
-    <div id="cart-btn" class="cart-float" onclick="toggleCart()">
+    <div id="cart-btn" class="cart-float" onclick="openCart()">
         <i class="fas fa-shopping-basket"></i>
         <div class="cart-badge" id="cart-count">0</div>
     </div>
@@ -300,384 +307,494 @@
     <div id="cart-modal" class="modal-overlay">
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2>Carrinho</h2>
-                <i class="fas fa-times" onclick="toggleCart()" style="font-size:1.5rem; color:#ccc; cursor:pointer;"></i>
+                <h2 id="cart-title">Resumo do Pedido</h2>
+                <i class="fas fa-times" onclick="closeModal('cart-modal')" style="font-size:1.5rem; color:#ccc; cursor:pointer;"></i>
             </div>
-            <div id="cart-items" style="max-height: 40vh; overflow-y:auto; margin-bottom:20px;"></div>
-            <div style="display:flex; justify-content:space-between; font-size:1.3rem; font-weight:800; color:var(--brand-dark); margin-bottom:20px; border-top:2px solid #eee; padding-top:15px;">
-                <span>Total</span>
-                <span id="cart-total">R$ 0,00</span>
+            <div id="cart-items" style="max-height: 50vh; overflow-y:auto; margin-bottom:20px;"></div>
+            <div id="cart-footer">
+                <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:800; color:var(--brand-dark); margin-bottom:20px; border-top:2px solid #eee; padding-top:15px;">
+                    <span>Total da NF</span><span id="cart-total">R$ 0,00</span>
+                </div>
+                <button class="btn btn-primary" id="btn-finish-sale" onclick="generateDANFE()">Emitir NF-e e Faturar</button>
             </div>
-            <button class="btn btn-primary" onclick="finalizeOrder()">Confirmar Pedido</button>
         </div>
     </div>
 
     <div id="client-modal" class="modal-overlay modal-center">
         <div class="modal-content">
-            <h3>Novo Cliente</h3>
-            <input type="text" id="new-client-name" class="form-control" placeholder="Nome do cliente ou empresa">
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-secondary" onclick="closeModal('client-modal')">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveNewClient()">Salvar</button>
+            <h3 id="cli-modal-title">Novo Cliente</h3>
+            <input type="hidden" id="cli-id">
+            <input type="text" id="cli-name" class="form-control" placeholder="Nome do cliente ou empresa">
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn btn-danger" id="btn-del-cli" style="flex:0 0 auto; width:50px; display:none;" onclick="deleteClient()"><i class="fas fa-trash"></i></button>
+                <button class="btn btn-primary" style="flex:1;" onclick="saveClient()">Salvar</button>
             </div>
+            <button class="btn btn-outline" style="margin-top:10px;" onclick="closeModal('client-modal')">Cancelar</button>
         </div>
     </div>
 
-    <div id="edit-client-modal" class="modal-overlay modal-center">
+    <div id="loss-modal" class="modal-overlay modal-center">
         <div class="modal-content">
-            <h3>Editar Cliente</h3>
-            <input type="text" id="edit-client-name" class="form-control">
-            <div style="display:flex; gap:10px; margin-top: 10px;">
-                <button class="btn btn-danger" style="flex: 0 0 auto; width: 60px;" onclick="deleteClient()">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-                <button class="btn btn-primary" style="flex: 1;" onclick="saveEditedClient()">Salvar Alteração</button>
+            <h3>Registrar Perda de Insumo</h3>
+            <p id="loss-item-name" style="font-weight:bold; color:var(--brand-red);"></p>
+            <input type="hidden" id="loss-item-id">
+            <label style="font-size:0.8rem;">Motivo da Perda:</label>
+            <select id="loss-reason" class="form-control">
+                <option value="Vencimento">Vencimento da Validade</option>
+                <option value="Erro Produção">Erro de Produção / Queima</option>
+                <option value="Embalagem">Embalagem Danificada</option>
+            </select>
+            <label style="font-size:0.8rem;">Quantidade Perdida:</label>
+            <input type="number" id="loss-qty" class="form-control" value="1" min="1">
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn btn-outline" style="margin:0;" onclick="closeModal('loss-modal')">Cancelar</button>
+                <button class="btn btn-primary" style="margin:0;" onclick="confirmLoss()">Apontar Perda</button>
             </div>
-            <button class="btn" style="background:transparent; color:#999; margin-top:5px; padding:10px;" onclick="closeModal('edit-client-modal')">Cancelar</button>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <a href="#" class="nav-item active" onclick="navTo('home')" data-target="home">
-            <i class="fas fa-chart-pie"></i> Início
-        </a>
-        <a href="#" class="nav-item" onclick="navTo('sales')" data-target="sales">
-            <i class="fas fa-utensils"></i> Venda
-        </a>
-        <a href="#" class="nav-item" onclick="navTo('stock')" data-target="stock">
-            <i class="fas fa-boxes"></i> Estoque
-        </a>
-        <a href="#" class="nav-item" onclick="navTo('clients')" data-target="clients">
-            <i class="fas fa-users"></i> Clientes
-        </a>
+        <a href="#" class="nav-item active" onclick="navTo('home')" data-target="home"><i class="fas fa-home"></i> Início</a>
+        <a href="#" class="nav-item" onclick="navTo('finance')" data-target="finance"><i class="fas fa-chart-line"></i> Finanças</a>
+        <a href="#" class="nav-item" onclick="navTo('production')" data-target="production"><i class="fas fa-industry"></i> Produção</a>
+        <a href="#" class="nav-item" onclick="navTo('stock')" data-target="stock"><i class="fas fa-boxes"></i> Estoque</a>
+        <a href="#" class="nav-item" onclick="navTo('sales')" data-target="sales"><i class="fas fa-shopping-cart"></i> Comercial</a>
     </nav>
 </div>
 
 <script>
     // --- DATABASE ---
-    const db = {
+const db = {
+        insumos: [
+            { id: 101, name: "Farinha de Trigo (Kg)", stock: 85, cost: 3.50, min: 20 },
+            { id: 102, name: "Peito de Frango (Kg)", stock: 42, cost: 18.00, min: 15 },
+            { id: 103, name: "Óleo de Soja (L)", stock: 12, cost: 6.50, min: 10 },
+            { id: 104, name: "Queijo Mussarela (Kg)", stock: 8, cost: 38.00, min: 5 }
+        ],
         products: [
-            { id: 1, name: "Mini Kibe Tradicional 1kg", cat: "Mini Fritos", price: 25.00, stock: 50 },
-            { id: 2, name: "Bolinha de Queijo 1kg", cat: "Mini Fritos", price: 28.00, stock: 40 },
-            { id: 3, name: "Mini Risoles Presunto/Queijo", cat: "Mini Fritos", price: 28.00, stock: 35 },
-            { id: 4, name: "Mini Coxinha Frango 1kg", cat: "Mini Fritos", price: 25.00, stock: 60 },
-            { id: 5, name: "Mini Churros Doce Leite", cat: "Mini Fritos", price: 30.00, stock: 20 },
-            { id: 6, name: "Mini Folhado Calabresa", cat: "Folhados", price: 32.00, stock: 25 },
-            { id: 7, name: "Mini Folhado Frango", cat: "Folhados", price: 32.00, stock: 25 },
-            { id: 8, name: "Risole Frango 150g", cat: "Lanches", price: 6.50, stock: 100 },
-            { id: 9, name: "Enrolado Salsicha", cat: "Lanches", price: 6.00, stock: 80 },
-            { id: 10, name: "Empanada Carne/Cheddar", cat: "Empanadas", price: 7.00, stock: 40 },
-            { id: 11, name: "Pão de Queijo 2kg", cat: "Pão de Queijo", price: 45.00, stock: 30 },
-            { id: 12, name: "Quiche Lorraine", cat: "Assados", price: 8.00, stock: 15 },
-            { id: 13, name: "Hambúrguer de Forno", cat: "Assados", price: 9.00, stock: 50 }
+            { id: 1, name: "Mini Coxinha Frango (Pct 1kg)", cat: "Fritos", price: 25.00, stock: 30, ncmAtual: "1602.32.20", ncmSugestao: null, recipe: [{ id: 101, qty: 0.5 }, { id: 102, qty: 0.4 }, { id: 103, qty: 0.1 }] },
+            { id: 2, name: "Bolinha de Queijo (Pct 1kg)", cat: "Fritos", price: 28.00, stock: 15, ncmAtual: "1902.20.00", ncmSugestao: null, recipe: [{ id: 101, qty: 0.6 }, { id: 104, qty: 0.4 }, { id: 103, qty: 0.1 }] },
+            { id: 3, name: "Pão de Queijo (Pct 2kg)", cat: "Assados", price: 45.00, stock: 8, ncmAtual: "1905.90.90", ncmSugestao: "1901.20.00", taxDrop: "3.5%", recipe: [{ id: 101, qty: 0.8 }, { id: 104, qty: 0.8 }] }
         ],
         clients: ["Consumidor Final", "Padaria Central", "Mercado Silva"],
         sales: [],
+        ops: [],
+        cart: {},
         target: 50000
     };
 
-    let cart = {}; 
-    let currentEditClientIndex = null; // Variável para controlar qual cliente está sendo editado
+    let opCounter = 1000;
 
-    function init() {
-        if(localStorage.getItem('delicks_db')) {
-            const saved = JSON.parse(localStorage.getItem('delicks_db'));
-            db.products = saved.products;
-            db.clients = saved.clients;
-            db.sales = saved.sales;
-        } else {
-            saveDb();
-        }
-        renderHome();
-        navTo('home');
+    // --- UTILS ---
+    function showToast(msg, type = 'success') {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-triangle'}"></i> <span>${msg}</span>`;
+        c.appendChild(t);
+        setTimeout(() => { t.style.animation = 'fadeOut 0.4s forwards'; t.addEventListener('animationend', () => t.remove()); }, 3500);
     }
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-    function saveDb() {
-        localStorage.setItem('delicks_db', JSON.stringify({
-            products: db.products,
-            clients: db.clients,
-            sales: db.sales
-        }));
-        renderHome();
-    }
-
-    // --- UX: TOAST NOTIFICATIONS ---
-    function showToast(message, type = 'success') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.style.animation = 'fadeOut 0.4s forwards';
-            toast.addEventListener('animationend', () => toast.remove());
-        }, 3000);
-    }
-
-    // --- NAVIGATION ---
+    // --- NAVEGAÇÃO ---
     function navTo(pageId) {
         document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        
         document.getElementById('view-' + pageId).classList.add('active');
-        const navBtn = document.querySelector(`.nav-item[data-target="${pageId}"]`);
-        if(navBtn) navBtn.classList.add('active');
+        document.querySelector(`.nav-item[data-target="${pageId}"]`).classList.add('active');
 
         document.getElementById('cart-btn').style.display = (pageId === 'sales') ? 'flex' : 'none';
-        
-        if(pageId === 'sales') renderCatalog();
-        if(pageId === 'stock') renderStock();
-        if(pageId === 'clients') renderClients();
+
         if(pageId === 'home') renderHome();
+        if(pageId === 'finance') renderFinance();
+        if(pageId === 'production') renderOPSelect();
+        if(pageId === 'stock') { renderStockRaw(); renderStockFinished(); }
+        if(pageId === 'sales') { renderCatalog(); renderClients(); }
     }
 
-    // --- RENDERIZADORES ---
+    // --- 1. HOME & FINANÇAS ---
     function renderHome() {
-        const total = db.sales.reduce((acc, sale) => acc + sale.total, 0);
-        document.getElementById('month-sales').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-        const low = db.products.filter(p => p.stock < 10).length;
-        document.getElementById('stock-alert').innerText = low;
-        document.getElementById('stock-alert').style.color = low > 0 ? 'var(--brand-red)' : 'var(--success)';
-        const pct = Math.min(100, (total / db.target) * 100);
+        const totalVendas = db.sales.reduce((a, b) => a + b.total, 0);
+        const pct = Math.min(100, (totalVendas / db.target) * 100);
         document.getElementById('progress-bar').style.width = pct + '%';
         document.getElementById('progress-txt').innerText = pct.toFixed(1) + '%';
     }
 
-    function renderCatalog() {
-        const container = document.getElementById('catalog-container');
-        const select = document.getElementById('client-select');
-        const currentVal = select.value;
-        select.innerHTML = '<option value="">Selecione o Cliente...</option>';
-        db.clients.forEach(c => { select.innerHTML += `<option value="${c}">${c}</option>`; });
-        select.value = currentVal;
+function renderFinance() {
+        // Puxa as vendas reais que você for fechando na apresentação
+        const totalVendas = db.sales.reduce((a, b) => a + b.total, 0);
+        
+        // Impostos e Líquida
+        const imposto = totalVendas * 0.068; // Exemplo Simples Nacional
+        const liquida = totalVendas - imposto;
+        
+        // CMV Dinâmico (simulando 38.4% de custo da indústria base)
+        let cmvReal = totalVendas * 0.384; 
+        if(cmvReal === 0 && totalVendas === 0) cmvReal = 1840; // Fallback se não tiver vendas ainda
+        
+        const despesasFixas = 4500;
+        const lucro = liquida - cmvReal - despesasFixas;
 
-        const grouped = {};
-        db.products.forEach(p => {
-            if(!grouped[p.cat]) grouped[p.cat] = [];
-            grouped[p.cat].push(p);
+        // Atualiza a tela superior
+        document.getElementById('fin-receber').innerText = totalVendas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        
+        // Atualiza a DRE
+        document.getElementById('dre-receita').innerText = totalVendas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        document.getElementById('dre-imposto').innerText = imposto.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        document.getElementById('dre-liquida').innerText = liquida.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        document.getElementById('dre-cmv').innerText = cmvReal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        
+        const lucroEl = document.getElementById('dre-lucro');
+        lucroEl.innerText = lucro.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        lucroEl.style.color = lucro >= 0 ? 'green' : 'red';
+    }
+
+    // --- 2. PRODUÇÃO (BOM & OP Workflow) ---
+    function switchProdTab(tab) {
+        ['nova', 'lista', 'nfc'].forEach(t => {
+            document.getElementById('tab-' + t).classList.remove('active');
+            document.getElementById('prod-' + t + '-content').style.display = 'none';
         });
-
-        let html = '';
-        for(let cat in grouped) {
-            html += `<div class="category-title">${cat}</div>`;
-            grouped[cat].forEach(p => {
-                const qty = cart[p.id] || 0;
-                const lowStock = p.stock < 10;
-                html += `
-                <div class="product-item">
-                    <div class="prod-info">
-                        <h4>${p.name}</h4>
-                        <p>R$ ${p.price.toFixed(2)} <span class="stock-tag ${lowStock ? 'stock-warn' : 'stock-ok'}">${p.stock} est.</span></p>
-                    </div>
-                    <div class="qty-wrapper">
-                        <button class="qty-btn" onclick="addCart(${p.id}, -1)">-</button>
-                        <div class="qty-val">${qty}</div>
-                        <button class="qty-btn" onclick="addCart(${p.id}, 1)">+</button>
-                    </div>
-                </div>`;
-            });
-        }
-        container.innerHTML = html;
-        updateCartIcon();
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('prod-' + tab + '-content').style.display = 'block';
+        if(tab === 'lista') renderOPList();
     }
 
-    function renderStock() {
-        const container = document.getElementById('stock-list-container');
-        const grouped = {};
-        db.products.forEach(p => {
-            if(!grouped[p.cat]) grouped[p.cat] = [];
-            grouped[p.cat].push(p);
+    function renderOPSelect() {
+        const sel = document.getElementById('op-product');
+        sel.innerHTML = '<option value="">Selecione o Produto...</option>';
+        db.products.forEach(p => sel.innerHTML += `<option value="${p.id}">${p.name}</option>`);
+    }
+
+    function previewBOM() {
+        const pId = document.getElementById('op-product').value;
+        const qty = parseInt(document.getElementById('op-qty').value) || 1;
+        const preview = document.getElementById('bom-preview');
+        
+        if(!pId) { preview.style.display = 'none'; return; }
+        
+        const prod = db.products.find(x => x.id == pId);
+        let html = `<strong>Ficha Técnica p/ ${qty} Lote(s):</strong><ul style="margin:5px 0; padding-left:20px;">`;
+        let canProduce = true;
+
+        prod.recipe.forEach(r => {
+            const insumo = db.insumos.find(i => i.id === r.id);
+            const needed = r.qty * qty;
+            const hasStock = insumo.stock >= needed;
+            if(!hasStock) canProduce = false;
+            html += `<li style="color:${hasStock ? 'green' : 'red'}">${needed.toFixed(2)} ${insumo.name} (Estoque: ${insumo.stock})</li>`;
         });
-        let html = '';
-        for(let cat in grouped) {
-            html += `<div class="category-title" style="margin-top:15px; font-size:1rem;">${cat}</div>`;
-            grouped[cat].forEach(p => {
-                const isLow = p.stock < 10;
-                html += `
-                <div class="product-item">
-                    <div class="prod-info">
-                        <h4>${p.name}</h4>
-                        <p style="color:#aaa;">Estoque Atual</p>
-                    </div>
-                    <div class="qty-wrapper" style="background: ${isLow ? '#FFEBEE' : '#E8F5E9'}">
-                        <button class="qty-btn" onclick="updateStock(${p.id}, -1)">-</button>
-                        <div class="qty-val" style="width:40px;">${p.stock}</div>
-                        <button class="qty-btn" onclick="updateStock(${p.id}, 1)">+</button>
-                    </div>
-                </div>`;
+        html += `</ul>`;
+        if(!canProduce) html += `<div style="color:red; font-weight:bold; margin-top:5px;"><i class="fas fa-ban"></i> Insumos insuficientes!</div>`;
+        
+        preview.innerHTML = html;
+        preview.style.display = 'block';
+        preview.dataset.can = canProduce;
+    }
+
+    function createOP() {
+        const pId = document.getElementById('op-product').value;
+        const qty = parseInt(document.getElementById('op-qty').value);
+        if(!pId) return showToast('Selecione um produto!', 'error');
+        if(document.getElementById('bom-preview').dataset.can === "false") return showToast('Falta insumo no estoque!', 'error');
+
+        opCounter++;
+        db.ops.unshift({ id: opCounter, pId: pId, qty: qty, status: 'Aberta', date: new Date().toLocaleDateString() });
+        showToast(`OP #${opCounter} Aberta com sucesso!`, 'success');
+        document.getElementById('op-product').value = "";
+        document.getElementById('bom-preview').style.display = 'none';
+        switchProdTab('lista');
+    }
+
+    function renderOPList() {
+        const c = document.getElementById('op-list-container');
+        c.innerHTML = '';
+        if(db.ops.length === 0) return c.innerHTML = '<p style="text-align:center; color:#999;">Nenhuma OP registrada.</p>';
+        
+        db.ops.forEach(op => {
+            const prod = db.products.find(x => x.id == op.pId);
+            let btnHtml = '';
+            let badgeCls = op.status.toLowerCase().replace('ç','c').replace(' ', '');
+            
+            if(op.status === 'Aberta') {
+                btnHtml = `<button class="btn-small btn-primary" onclick="changeOPStatus(${op.id}, 'Em Produção')">Iniciar Produção</button>`;
+            } else if(op.status === 'Em Produção') {
+                btnHtml = `<button class="btn-small btn-secondary" onclick="changeOPStatus(${op.id}, 'Concluída')">Finalizar e Baixar Estoque</button>`;
+            }
+
+            c.innerHTML += `
+            <div class="product-item" style="flex-direction:column; align-items:flex-start;">
+                <div style="width:100%; display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <strong>OP #${op.id} <span style="font-size:0.7rem; font-weight:normal; color:#888;">(${op.date})</span></strong>
+                    <span class="status-badge status-${badgeCls}">${op.status}</span>
+                </div>
+                <div style="margin-bottom:10px; font-size:0.9rem;">Gerar: <b>${op.qty}x ${prod.name}</b></div>
+                ${btnHtml ? `<div style="width:100%; display:flex; gap:10px;">${btnHtml}<button class="btn-small btn-outline" onclick="changeOPStatus(${op.id}, 'Cancelada')">Cancelar</button></div>` : ''}
+            </div>`;
+        });
+    }
+
+    function changeOPStatus(id, status) {
+        const op = db.ops.find(o => o.id === id);
+        if(status === 'Concluída') {
+            const prod = db.products.find(x => x.id == op.pId);
+            // Dá baixa nos insumos
+            prod.recipe.forEach(r => {
+                const ins = db.insumos.find(i => i.id === r.id);
+                ins.stock -= (r.qty * op.qty);
             });
+            // Entra produto acabado
+            prod.stock += op.qty;
+            showToast(`Estoque Atualizado! +${op.qty} ${prod.name}`, 'success');
         }
-        container.innerHTML = html;
+        op.status = status;
+        renderOPList();
     }
 
-    function updateStock(id, delta) {
-        const p = db.products.find(x => x.id == id);
-        const newStock = p.stock + delta;
-        if(newStock < 0) { showToast('Estoque não pode ser negativo', 'error'); return; }
-        p.stock = newStock;
-        saveDb();
-        renderStock();
+    // --- 3. CHÃO DE FÁBRICA (NFC & PERDAS) ---
+    function simulateNFC() {
+        document.getElementById('nfc-locked').style.display = 'none';
+        document.getElementById('nfc-unlocked').style.display = 'block';
+        showToast('Acesso Liberado', 'info');
+        renderTabletRaw();
+    }
+    function lockNFC() {
+        document.getElementById('nfc-unlocked').style.display = 'none';
+        document.getElementById('nfc-locked').style.display = 'block';
+    }
+    function renderTabletRaw() {
+        const c = document.getElementById('tablet-raw-list');
+        c.innerHTML = '';
+        db.insumos.forEach(i => {
+            c.innerHTML += `
+            <div class="product-item">
+                <div class="prod-info"><h4>${i.name}</h4><p>Físico: <b>${i.stock.toFixed(2)}</b> disp.</p></div>
+                <button class="btn-small btn-primary" onclick="openLossModal(${i.id}, '${i.name}')">Registrar Perda</button>
+            </div>`;
+        });
+    }
+    function openLossModal(id, name) {
+        document.getElementById('loss-item-id').value = id;
+        document.getElementById('loss-item-name').innerText = name;
+        openModal('loss-modal');
+    }
+    function confirmLoss() {
+        const id = document.getElementById('loss-item-id').value;
+        const qty = parseFloat(document.getElementById('loss-qty').value);
+        const insumo = db.insumos.find(x => x.id == id);
+        if(insumo.stock < qty) return showToast('Estoque insuficiente.', 'error');
+        insumo.stock -= qty;
+        showToast(`Custo registrado: Perda de ${qty}x ${insumo.name}.`, 'error');
+        closeModal('loss-modal');
+        renderTabletRaw();
     }
 
-    // --- CLIENTS (NOVO CÓDIGO EDITAR/EXCLUIR) ---
+    // --- 4. ESTOQUE & NFE ---
+    function switchStockTab(tab) {
+        ['raw', 'finished', 'nfe'].forEach(t => {
+            document.getElementById('tab-' + t).classList.remove('active');
+            document.getElementById('stock-' + t + '-content').style.display = 'none';
+        });
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('stock-' + tab + '-content').style.display = 'block';
+    }
+    function renderStockRaw() {
+        const c = document.getElementById('stock-raw-content');
+        c.innerHTML = '';
+        db.insumos.forEach(i => {
+            const low = i.stock <= i.min;
+            c.innerHTML += `<div class="product-item">
+                <div class="prod-info"><h4>${i.name}</h4><p>R$ ${i.cost.toFixed(2)} / un</p></div>
+                <div style="text-align:right;"><span style="font-size:1.1rem; font-weight:bold; color:${low?'red':'green'}">${i.stock.toFixed(2)}</span>${low ? '<br><span class="status-badge status-producao">Comprar</span>' : ''}</div>
+            </div>`;
+        });
+    }
+    function renderStockFinished() {
+        const c = document.getElementById('stock-finished-content');
+        c.innerHTML = '';
+        db.products.forEach(p => {
+            c.innerHTML += `<div class="product-item">
+                <div class="prod-info"><h4>${p.name}</h4><p>Venda: R$ ${p.price.toFixed(2)}</p></div>
+                <div style="font-size:1.1rem; font-weight:bold;">${p.stock} un.</div>
+            </div>`;
+        });
+    }
+    function processNFE() {
+        showToast('Validando XML na Sefaz...', 'info');
+        setTimeout(() => {
+            const f = db.insumos.find(i => i.id === 101); f.stock += 50;
+            showToast('XML Processado! +50 Farinha alimentados.', 'success');
+            document.getElementById('nf-key').value = '';
+            renderStockRaw();
+            switchStockTab('raw');
+        }, 1500);
+    }
+
+    // --- 5. VENDAS & CLIENTES ---
+    function switchSalesTab(tab) {
+        document.getElementById('tab-pdv').classList.remove('active');
+        document.getElementById('tab-cli').classList.remove('active');
+        document.getElementById('sales-pdv-content').style.display = 'none';
+        document.getElementById('sales-cli-content').style.display = 'none';
+        
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('sales-' + tab + '-content').style.display = 'block';
+    }
+
     function renderClients() {
         const list = document.getElementById('clients-list');
+        const sel = document.getElementById('client-select');
         list.innerHTML = '';
-        db.clients.forEach((c, index) => {
+        sel.innerHTML = '<option value="">Selecione o Cliente...</option>';
+        
+        db.clients.forEach((c, i) => {
+            sel.innerHTML += `<option value="${c}">${c}</option>`;
             list.innerHTML += `
-            <li class="product-item" onclick="openEditClient(${index})" style="cursor:pointer">
-                <span style="font-weight:700;">${c}</span>
-                <i class="fas fa-pen" style="color:#ddd; font-size:0.9rem;"></i>
+            <li class="product-item" onclick="openEditClient(${i})" style="cursor:pointer">
+                <span style="font-weight:700;">${c}</span><i class="fas fa-pen" style="color:#ddd;"></i>
             </li>`;
         });
     }
 
     function openEditClient(index) {
-        currentEditClientIndex = index;
-        const name = db.clients[index];
-        document.getElementById('edit-client-name').value = name;
-        document.getElementById('edit-client-modal').classList.add('open');
+        document.getElementById('cli-modal-title').innerText = "Editar Cliente";
+        document.getElementById('cli-id').value = index;
+        document.getElementById('cli-name').value = db.clients[index];
+        document.getElementById('btn-del-cli').style.display = 'block';
+        openModal('client-modal');
     }
 
-    function saveEditedClient() {
-        const newName = document.getElementById('edit-client-name').value.trim();
-        if(newName && currentEditClientIndex !== null) {
-            db.clients[currentEditClientIndex] = newName;
-            saveDb();
-            renderClients();
-            closeModal('edit-client-modal');
-            showToast('Cliente atualizado!', 'success');
-        } else {
-            showToast('Nome inválido', 'error');
-        }
+    function saveClient() {
+        const name = document.getElementById('cli-name').value.trim();
+        const id = document.getElementById('cli-id').value;
+        if(!name) return showToast('Nome inválido', 'error');
+        if(id) db.clients[id] = name; else db.clients.push(name);
+        
+        document.getElementById('cli-name').value = '';
+        document.getElementById('cli-id').value = '';
+        document.getElementById('cli-modal-title').innerText = "Novo Cliente";
+        document.getElementById('btn-del-cli').style.display = 'none';
+        
+        closeModal('client-modal');
+        renderClients();
+        showToast('Cliente salvo!', 'success');
     }
 
     function deleteClient() {
-        if(currentEditClientIndex !== null) {
-            if(confirm(`Tem certeza que deseja remover ${db.clients[currentEditClientIndex]}?`)) {
-                db.clients.splice(currentEditClientIndex, 1);
-                saveDb();
-                renderClients();
-                closeModal('edit-client-modal');
-                showToast('Cliente removido.', 'success');
-            }
-        }
+        const id = document.getElementById('cli-id').value;
+        db.clients.splice(id, 1);
+        closeModal('client-modal');
+        renderClients();
+        showToast('Cliente removido.', 'success');
     }
 
-    // --- CART LOGIC ---
-    function addCart(id, delta) {
+    // --- PDV & CARRINHO ---
+    function renderCatalog() {
+        const c = document.getElementById('catalog-container');
+        c.innerHTML = '';
+        db.products.forEach(p => {
+            const qty = db.cart[p.id] || 0;
+            c.innerHTML += `
+            <div class="product-item">
+                <div class="prod-info">
+                    <h4>${p.name} <span class="status-badge status-concluida" style="margin-left:5px;">${p.stock} est.</span></h4>
+                    <p>R$ ${p.price.toFixed(2)}</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button class="btn-secondary" style="width:30px; height:30px; border-radius:50%; border:none; font-weight:bold;" onclick="cartAdd(${p.id}, -1)">-</button>
+                    <strong>${qty}</strong>
+                    <button class="btn-primary" style="width:30px; height:30px; border-radius:50%; border:none; font-weight:bold;" onclick="cartAdd(${p.id}, 1)">+</button>
+                </div>
+            </div>`;
+        });
+        document.getElementById('cart-count').innerText = Object.values(db.cart).reduce((a,b)=>a+b, 0);
+    }
+
+    function cartAdd(id, delta) {
         const p = db.products.find(x => x.id == id);
-        if(!cart[id]) cart[id] = 0;
-        const nextQty = cart[id] + delta;
-        if(nextQty < 0) return;
-        if(nextQty > p.stock) { showToast('Estoque insuficiente!', 'error'); return; }
-        cart[id] = nextQty;
-        if(cart[id] === 0) delete cart[id];
+        if(!db.cart[id]) db.cart[id] = 0;
+        const n = db.cart[id] + delta;
+        if(n < 0) return;
+        if(n > p.stock) return showToast('Estoque final insuficiente!', 'error');
+        db.cart[id] = n;
+        if(db.cart[id] === 0) delete db.cart[id];
         renderCatalog();
     }
 
-    function updateCartIcon() {
-        const count = Object.values(cart).reduce((a,b) => a+b, 0);
-        document.getElementById('cart-count').innerText = count;
-        document.getElementById('cart-btn').style.display = 'flex';
-        const btn = document.getElementById('cart-btn');
-        btn.style.animation = 'none';
-        btn.offsetHeight; 
-        btn.style.animation = 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-    }
-
-    function toggleCart() {
-        const modal = document.getElementById('cart-modal');
-        if(!modal.classList.contains('open')) {
-            const container = document.getElementById('cart-items');
-            let html = '';
-            let total = 0;
-            for(let id in cart) {
-                const p = db.products.find(x => x.id == id);
-                const sub = p.price * cart[id];
-                total += sub;
-                html += `
-                <div class="cart-row">
-                    <div>
-                        <div style="font-weight:700;">${p.name}</div>
-                        <small>${cart[id]}x R$ ${p.price.toFixed(2)}</small>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <b>R$ ${sub.toFixed(2)}</b>
-                        <i class="fas fa-trash" style="color:#ddd; cursor:pointer;" onclick="removeFromCart(${id})"></i>
-                    </div>
-                </div>`;
-            }
-            if(html === '') html = '<p style="text-align:center; color:#999;">Seu carrinho está vazio.</p>';
-            container.innerHTML = html;
-            document.getElementById('cart-total').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            modal.classList.add('open');
-        } else {
-            modal.classList.remove('open');
-        }
-    }
-
-    function removeFromCart(id) {
-        delete cart[id];
-        const modal = document.getElementById('cart-modal');
-        modal.classList.remove('open'); 
-        toggleCart();
-        renderCatalog();
-    }
-
-    function finalizeOrder() {
-        const client = document.getElementById('client-select').value;
-        if(!client) {
-            showToast('Selecione um cliente para finalizar!', 'error');
-            toggleCart();
-            return;
-        }
-        if(Object.keys(cart).length === 0) { showToast('Carrinho vazio!', 'error'); return; }
-
-        let total = 0;
-        for(let id in cart) {
+    function openCart() {
+        if(Object.keys(db.cart).length === 0) return showToast('Carrinho vazio!', 'error');
+        const c = document.getElementById('cart-items');
+        let html = ''; let total = 0;
+        for(let id in db.cart) {
             const p = db.products.find(x => x.id == id);
-            p.stock -= cart[id];
-            total += (p.price * cart[id]);
+            const sub = p.price * db.cart[id]; total += sub;
+            html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px dashed #eee; padding-bottom:5px;">
+                <div><strong>${p.name}</strong><br><small>${db.cart[id]} un x R$ ${p.price.toFixed(2)}</small></div>
+                <strong>R$ ${sub.toFixed(2)}</strong>
+            </div>`;
         }
+        c.innerHTML = html;
+        document.getElementById('cart-total').innerText = total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        
+        document.getElementById('cart-title').innerText = "Resumo do Pedido";
+        document.getElementById('cart-footer').style.display = 'block';
+        const btn = document.getElementById('btn-finish-sale');
+        btn.innerHTML = "Emitir NF-e e Faturar";
+        btn.onclick = generateDANFE;
 
-        db.sales.push({ id: Date.now(), date: new Date(), client: client, total: total });
-        cart = {};
-        saveDb();
-        toggleCart();
-        navTo('home');
-        showToast(`Venda de R$ ${total.toFixed(2)} registrada!`, 'success');
+        openModal('cart-modal');
     }
 
-    // --- MODALS HELPER ---
-    function openAddClientModal() {
-        document.getElementById('client-modal').classList.add('open');
-        document.getElementById('new-client-name').focus();
-    }
-
-    function saveNewClient() {
-        const input = document.getElementById('new-client-name');
-        const name = input.value.trim();
-        if(name) {
-            db.clients.push(name);
-            saveDb();
-            input.value = '';
-            closeModal('client-modal');
-            showToast('Cliente cadastrado!', 'success');
-            if(document.querySelector('#view-clients').classList.contains('active')) renderClients();
-            if(document.querySelector('#view-sales').classList.contains('active')) renderCatalog();
-        } else {
-            showToast('Digite um nome válido.', 'error');
+    function generateDANFE() {
+        const client = document.getElementById('client-select').value;
+        if(!client) { showToast('Selecione um cliente!', 'error'); closeModal('cart-modal'); return; }
+        
+        let total = 0; let trs = ''; const numNota = Math.floor(Math.random() * 9000) + 1000;
+        for(let id in db.cart) {
+            const p = db.products.find(x => x.id == id);
+            p.stock -= db.cart[id];
+            const sub = p.price * db.cart[id]; total += sub;
+            trs += `<tr><td>${p.id.toString().padStart(4,'0')}</td><td>${p.name}</td><td>UN</td><td>${db.cart[id]}</td><td>R$ ${sub.toFixed(2)}</td></tr>`;
         }
+        db.sales.push({ id: Date.now(), total: total });
+
+        const danfe = `
+        <div class="danfe-box">
+            <div style="display:flex; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:10px;">
+                <div style="width:50%; border-right:1px solid #000;"><strong>DELICK'S INDÚSTRIA</strong><br>CNPJ: 12.345.678/0001-90</div>
+                <div style="flex:1; text-align:center;">DANFE<br>Nº 000.00${numNota}</div>
+            </div>
+            <div style="border:1px solid #000; text-align:center; padding:5px; margin-bottom:10px; background:#f9f9f9; font-size:0.7rem;">
+                CHAVE DE ACESSO<br>4326 0212 3456 7800 0190 5500 1000 00${numNota} 1123 4567<div class="barcode-mock"></div>
+            </div>
+            <div style="border:1px solid #000; padding:5px; margin-bottom:10px;"><strong>DESTINATÁRIO:</strong> ${client}</div>
+            <table class="dre-table" style="border:1px solid #000;">
+                <thead style="background:#eee;"><tr><th>CÓDIGO</th><th>DESCRIÇÃO</th><th>UN</th><th>QTD</th><th>TOTAL</th></tr></thead>
+                <tbody>${trs}</tbody>
+            </table>
+            <div style="text-align:right; font-size:1rem; border:1px solid #000; padding:5px; background:#eee;"><strong>TOTAL: R$ ${total.toFixed(2)}</strong></div>
+        </div>`;
+
+        document.getElementById('cart-title').innerText = "NF-e Emitida";
+        document.getElementById('cart-items').innerHTML = danfe;
+        document.getElementById('cart-footer').style.display = 'none';
+        
+        const btn = document.getElementById('btn-finish-sale');
+        btn.innerHTML = "<i class='fas fa-print'></i> Fechar Venda";
+        document.getElementById('cart-footer').style.display = 'block';
+        document.getElementById('cart-total').parentElement.style.display = 'none';
+
+        btn.onclick = () => {
+            db.cart = {};
+            showToast('Faturamento Concluído.', 'success');
+            closeModal('cart-modal');
+            navTo('home');
+        };
     }
 
-    function closeModal(id) {
-        document.getElementById(id).classList.remove('open');
-    }
-
-    init();
-
+    // INIT
+    renderHome();
 </script>
 </body>
 </html>
