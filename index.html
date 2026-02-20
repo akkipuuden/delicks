@@ -226,6 +226,10 @@
                     <span style="color:#69F0AE; font-weight:bold;">Simples Nacional</span>
                 </div>
             </div>
+			<div class="card" id="home-chart-card">
+                <h4 style="margin:0 0 15px 0;"><i class="fas fa-trophy" style="color:var(--warning);"></i> Top Produtos Mais Vendidos</h4>
+                <div id="home-chart-container"></div>
+            </div>
         </div>
 
         <div id="view-finance" class="view">
@@ -251,15 +255,23 @@
             </div>
 
             <div class="card">
-                <h4><i class="fas fa-file-invoice-dollar" style="color:var(--brand-yellow);"></i> DRE Simplificado (Mês Atual)</h4>
-<table class="dre-table">
-                    <tr><td>Receita Bruta de Vendas</td><td style="text-align:right; color:green;" id="dre-receita">R$ 0,00</td></tr>
-                    <tr><td>(-) Impostos Incidentes (6.8%)</td><td style="text-align:right; color:red;" id="dre-imposto">R$ 0,00</td></tr>
-                    <tr style="background:#f9f9f9; font-weight:bold;"><td>(=) Receita Líquida</td><td style="text-align:right;" id="dre-liquida">R$ 0,00</td></tr>
-                    <tr><td>(-) CMV (Custo Insumos Baixados)</td><td style="text-align:right; color:red;" id="dre-cmv">R$ 0,00</td></tr>
-                    <tr><td>(-) Despesas Fixas / Operacionais</td><td style="text-align:right; color:red;">R$ 4.500,00</td></tr>
-                    <tr class="total"><td>(=) Lucro Líquido Operacional</td><td style="text-align:right; color:green;" id="dre-lucro">R$ 0,00</td></tr>
-                </table>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h4 style="margin:0;"><i class="fas fa-file-invoice-dollar" style="color:var(--brand-yellow);"></i> DRE Simplificado</h4>
+                    <span style="font-size:0.7rem; color:#888;">Tempo Real</span>
+                </div>
+                <table class="dre-table" id="dre-dynamic-table">
+                    </table>
+            </div>
+
+<div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h4 style="margin:0;"><i class="fas fa-receipt" style="color:var(--brand-red);"></i> Controle de Gastos</h4>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-small btn-secondary" onclick="openFixedCostsModal()"><i class="fas fa-building"></i> Fixos</button>
+                        <button class="btn-small btn-outline" onclick="openExpenseModal()"><i class="fas fa-plus"></i> Avulso</button>
+                    </div>
+                </div>
+                <div id="expense-list-container" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
             </div>
             
             <div class="card">
@@ -280,6 +292,11 @@
                     <span style="font-size:0.85rem; color:#666;">Total Filtrado:</span>
                     <strong style="font-size:1.2rem; color:var(--brand-dark);" id="nf-total-filtered">R$ 0,00</strong>
                 </div>
+            </div>
+			<div class="card">
+                <h4><i class="fas fa-handshake" style="color:var(--purple);"></i> Controle de Comissões</h4>
+                <p style="font-size:0.8rem; color:#666; margin-top:0;">O valor só é liberado para pagamento após a quitação da NF-e pelo cliente.</p>
+                <div id="comissoes-list" style="margin-top: 15px;"></div>
             </div>
         </div>
 
@@ -351,11 +368,22 @@
                 <button class="tab-btn" onclick="switchSalesTab('cli')" id="tab-cli">Meus Clientes</button>
             </div>
 
-            <div id="sales-pdv-content">
-                <div style="background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee;">
-                    <label style="font-size:0.8rem; font-weight:700; color:#999; display:block; margin-bottom:5px;">CLIENTE (DESTINATÁRIO)</label>
-                    <select id="client-select" class="form-control" style="margin:0;"></select>
+<div id="sales-pdv-content">
+                <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                    <div style="flex:1; background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee;">
+                        <label style="font-size:0.75rem; font-weight:700; color:#999; display:block; margin-bottom:5px;">VENDEDOR</label>
+                        <select id="vendedor-select" class="form-control" style="margin:0;"></select>
+                    </div>
+                    <div style="flex:1; background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee;">
+                        <label style="font-size:0.75rem; font-weight:700; color:#999; display:block; margin-bottom:5px;">CLIENTE DESTINO</label>
+                        <select id="client-select" class="form-control" style="margin:0;"></select>
+                    </div>
                 </div>
+                
+                <button class="btn btn-outline" id="btn-gps" style="margin-bottom:15px; background:white; color:var(--info); border-color:var(--info);" onclick="capturarLocalizacao()">
+                    <i class="fas fa-map-marker-alt"></i> Fazer Check-in no Cliente
+                </button>
+
                 <div id="catalog-container"></div>
             </div>
 
@@ -364,7 +392,16 @@
                 <ul id="clients-list" style="list-style:none; padding:0; margin-top: 10px;"></ul>
             </div>
         </div>
+			<div id="view-logistics" class="view">
+            <h2>Logística e Entregas</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchLogTab('rotas')" id="tab-rotas">Rotas em Trânsito</button>
+                <button class="tab-btn" onclick="switchLogTab('acerto')" id="tab-acerto">Acerto de Caixa</button>
+            </div>
 
+            <div id="log-rotas-content"></div>
+            <div id="log-acerto-content" style="display:none;"></div>
+        </div>
     </div>
 
     <div id="cart-btn" class="cart-float" onclick="openCart()">
@@ -437,8 +474,25 @@
             
             <div style="display:flex; flex-direction:column; gap:10px;">
                 <button class="btn btn-primary" id="btn-pay-nf" onclick="toggleNFStatus()" style="background:var(--success); border:none;"><i class="fas fa-check-circle"></i> Confirmar Recebimento</button>
-                <button class="btn btn-secondary" onclick="emitCCe()"><i class="fas fa-edit"></i> Emitir Carta de Correção (CC-e)</button>
+                <button class="btn btn-secondary" id="btn-cce-nf" onclick="emitCCe()"><i class="fas fa-edit"></i> Emitir Carta de Correção</button>
+                <button class="btn btn-danger" id="btn-cancel-nf" onclick="confirmCancelNF()" style="background:var(--brand-red); border:none; color:white;"><i class="fas fa-ban"></i> Cancelar NF-e</button>
                 <button class="btn btn-outline" style="margin:0;" onclick="closeModal('nf-manage-modal')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cancel-nf-modal" class="modal-overlay modal-center">
+        <div class="modal-content">
+            <h3 style="color:var(--brand-red); margin-top:0;"><i class="fas fa-exclamation-circle"></i> Cancelar Nota Fiscal</h3>
+            <p style="font-size:0.85rem; color:var(--brand-dark);">Atenção: Esta ação é irreversível. O faturamento e a comissão vinculada à NF <strong id="cancel-nf-label-num"></strong> serão estornados.</p>
+            
+            <input type="hidden" id="cancel-nf-id">
+            <label style="font-size:0.8rem; font-weight:bold;">Motivo do Cancelamento (Sefaz):</label>
+            <input type="text" id="cancel-nf-reason" class="form-control" placeholder="Ex: Devolução, erro de digitação, etc..." style="margin-top:5px;">
+            
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn btn-outline" style="margin:0;" onclick="closeModal('cancel-nf-modal')">Voltar</button>
+                <button class="btn btn-primary" style="margin:0; background:var(--brand-red); border:none;" onclick="executeCancelNF()">Confirmar Cancelamento</button>
             </div>
         </div>
     </div>
@@ -460,16 +514,111 @@
                 <button class="btn btn-primary" style="margin:0; background:#1565C0; border:none;" onclick="confirmWithdraw()"><i class="fas fa-hand-holding-box"></i> Confirmar Baixa</button>
             </div>
         </div>
+
     </div>
-    <nav class="bottom-nav">
+
+<nav class="bottom-nav">
         <a href="#" class="nav-item active" onclick="navTo('home')" data-target="home"><i class="fas fa-home"></i> Início</a>
         <a href="#" class="nav-item" onclick="navTo('finance')" data-target="finance"><i class="fas fa-chart-line"></i> Finanças</a>
         <a href="#" class="nav-item" onclick="navTo('production')" data-target="production"><i class="fas fa-industry"></i> Produção</a>
         <a href="#" class="nav-item" onclick="navTo('stock')" data-target="stock"><i class="fas fa-boxes"></i> Estoque</a>
         <a href="#" class="nav-item" onclick="navTo('sales')" data-target="sales"><i class="fas fa-shopping-cart"></i> Comercial</a>
+        <a href="#" class="nav-item" onclick="navTo('logistics')" data-target="logistics"><i class="fas fa-truck"></i> Logística</a>
     </nav>
 </div>
+<div id="confirm-modal" class="modal-overlay modal-center">
+        <div class="modal-content">
+            <h3 style="color:var(--brand-red); margin-top:0;"><i class="fas fa-exclamation-triangle"></i> Atenção Financeira</h3>
+            <p id="confirm-msg" style="font-size:0.9rem; margin-bottom: 20px; color:var(--brand-dark);">Este cliente possui títulos pendentes.</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-outline" style="margin:0;" onclick="closeModal('confirm-modal')">Cancelar</button>
+                <button class="btn btn-primary" style="margin:0; background:var(--brand-red); border:none;" onclick="proceedDANFE()">Sim, Faturar</button>
+            </div>
+        </div>
+    </div>
+	<div id="signature-modal" class="modal-overlay modal-center">
+        <div class="modal-content" style="text-align:center;">
+            <h3 style="margin-top:0;">Comprovante de Entrega</h3>
+            <p style="font-size:0.85rem; color:#666;">Assinatura do Recebedor - NF <strong id="sig-nf-num" style="color:var(--brand-dark);"></strong></p>
+            <input type="hidden" id="sig-sale-id">
+            
+            <canvas id="sig-canvas" width="300" height="150" style="border:2px dashed #ccc; border-radius:8px; background:#f9f9f9; touch-action:none; margin-bottom:10px;"></canvas>
+            
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button class="btn btn-outline" style="margin:0; width:auto;" onclick="clearCanvas()">Limpar</button>
+                <button class="btn btn-primary" style="margin:0; background:var(--success); border:none;" onclick="confirmDelivery()">Salvar e Concluir</button>
+            </div>
+            <button class="btn btn-outline" style="margin-top:10px; border:none;" onclick="closeModal('signature-modal')">Cancelar</button>
+        </div>
+    </div>
+	<div id="expense-modal" class="modal-overlay modal-center">
+        <div class="modal-content">
+            <h3 style="color:var(--brand-red); margin-top:0;"><i class="fas fa-money-bill-wave"></i> Lançar Despesa</h3>
+            
+            <label style="font-size:0.8rem; font-weight:bold;">Descrição / Motivo:</label>
+            <input type="text" id="exp-desc" class="form-control" placeholder="Ex: Conta de Luz, Mercado, Peça...">
+            
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;">
+                    <label style="font-size:0.8rem; font-weight:bold;">Valor (R$):</label>
+                    <input type="number" id="exp-val" class="form-control" placeholder="0.00" step="0.01">
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn btn-outline" style="margin:0;" onclick="closeModal('expense-modal')">Cancelar</button>
+                <button class="btn btn-primary" style="margin:0; background:var(--brand-dark); border:none;" onclick="saveExpense()">Salvar e Abater</button>
+            </div>
+        </div>
+    </div>
+	<div id="fixed-costs-modal" class="modal-overlay modal-center">
+        <div class="modal-content">
+            <h3 style="color:var(--warning); margin-top:0;"><i class="fas fa-building"></i> Custos Fixos Mensais</h3>
+            <p style="font-size:0.85rem; color:#666; margin-bottom:15px;">Esta é a sua dívida mensal certa. O total já é provisionado e deduzido do DRE automaticamente.</p>
+            
+            <div id="fixed-costs-list" style="margin-bottom:15px; border:1px solid #eee; border-radius:8px; padding:10px; max-height:200px; overflow-y:auto;"></div>
+            
+            <div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:15px; border: 1px solid #ddd;">
+                <label style="font-size:0.8rem; font-weight:bold;">Adicionar Novo Fixo:</label>
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                    <input type="text" id="fc-desc" class="form-control" placeholder="Ex: Internet" style="margin:0; flex:2; font-size:0.85rem; padding:8px;">
+                    <input type="number" id="fc-val" class="form-control" placeholder="R$" style="margin:0; flex:1; font-size:0.85rem; padding:8px;">
+                    <button class="btn-primary" style="border:none; border-radius:8px; width:45px; cursor:pointer;" onclick="addFixedCost()"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+            
+            <button class="btn btn-outline" style="margin:0; width:100%;" onclick="closeModal('fixed-costs-modal')">Fechar Painel</button>
+        </div>
+    </div>
+	<div id="po-modal" class="modal-overlay modal-center">
+        <div class="modal-content" style="max-width:450px;">
+            <h3 style="color:var(--brand-dark); margin-top:0;"><i class="fas fa-file-signature" style="color:var(--info);"></i> Ordem de Compra Inteligente</h3>
+            <p style="font-size:0.8rem; color:#666; margin-bottom:15px;">Sugestão calculada pela IA para atingir o nível de segurança (3x o estoque mínimo).</p>
+            
+            <div style="max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px;">
+                <table class="dre-table" style="margin:0; width:100%;">
+                    <thead style="background:#f9f9f9; position:sticky; top:0;">
+                        <tr>
+                            <th style="text-align:left; padding:8px;">Insumo</th>
+                            <th style="text-align:center; padding:8px;">Qtd Sugerida</th>
+                            <th style="text-align:right; padding:8px;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="po-table-body"></tbody>
+                </table>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:12px; border-radius:8px; margin-bottom:15px; border:1px solid #eee;">
+                <span style="font-size:0.9rem; font-weight:bold; color:#555;">Investimento Estimado:</span>
+                <strong style="font-size:1.3rem; color:var(--brand-dark);" id="po-total-val">R$ 0,00</strong>
+            </div>
 
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-outline" style="margin:0;" onclick="closeModal('po-modal')">Cancelar</button>
+                <button class="btn btn-primary" style="margin:0; background:var(--info); border:none;" onclick="approvePurchaseOrder()"><i class="fas fa-paper-plane"></i> Aprovar e Cotar</button>
+            </div>
+        </div>
+    </div>
 <script>
     // --- DATABASE ---
 // --- DATABASE COMPLETO (ERP NÍVEL 5) ---
@@ -498,11 +647,29 @@
             { id: 12, name: "Quiche Lorraine", cat: "Assados", price: 8.00, stock: 15, ncmAtual: "1905.90.90", recipe: [{ id: 101, qty: 0.1 }, { id: 104, qty: 0.05 }, { id: 107, qty: 0.05 }] },
             { id: 13, name: "Hambúrguer de Forno", cat: "Assados", price: 9.00, stock: 50, ncmAtual: "1602.32.90", recipe: [{ id: 101, qty: 0.1 }, { id: 105, qty: 0.1 }, { id: 104, qty: 0.02 }] }
         ],
+		
         clients: ["Consumidor Final", "Padaria Central", "Mercado Silva"],
+		vendedores: [
+            { id: 1, name: "Alexandre", comissaoPct: 0 },
+            { id: 2, name: "Carlos Moura", comissaoPct: 5 },
+            { id: 3, name: "Ana Silva", comissaoPct: 3 }
+        ],
+        motoristas: [
+            { id: 1, name: "João (Fiorino)", rota: "Centro/Zona Sul" },
+            { id: 2, name: "Marcos (Kombi)", rota: "Zona Norte" }
+        ],
         sales: [
-            { id: 1708290000000, nfNum: "000.001240", date: "16/02/2026", client: "Padaria Central", total: 450.00, status: "Paga" },
-            { id: 1708376400000, nfNum: "000.001241", date: "17/02/2026", client: "Mercado Silva", total: 1280.00, status: "Pendente" },
-            { id: 1708462800000, nfNum: "000.001242", date: "18/02/2026", client: "Consumidor Final", total: 125.00, status: "Paga" }
+            { id: 1708290000000, nfNum: "000.001240", date: "16/02/2026", client: "Padaria Central", total: 450.00, status: "Paga", vendedorId: 2, comissao: 22.50, comissaoPaga: true, statusEntrega: "Entregue", motoristaId: 1 },
+            { id: 1708376400000, nfNum: "000.001241", date: "17/02/2026", client: "Mercado Silva", total: 1280.00, status: "Pendente", vendedorId: 3, comissao: 38.40, comissaoPaga: false, statusEntrega: "Em Trânsito", motoristaId: 1 },
+            { id: 1708462800000, nfNum: "000.001242", date: "18/02/2026", client: "Consumidor Final", total: 125.00, status: "Pendente", vendedorId: 2, comissao: 6.25, comissaoPaga: false, statusEntrega: "Em Separação", motoristaId: null }
+        ],
+		custosFixos: [
+            { id: 1, desc: "Aluguel Galpão", val: 3500.00 },
+            { id: 2, desc: "Energia Elétrica (Média)", val: 850.00 },
+            { id: 3, desc: "Contador e Software", val: 350.00 }
+        ],
+        despesas: [
+            { id: 1, desc: "Material Limpeza (Avulso)", val: 120.50, tipo: "Variável", data: "15/02/2026" }
         ],
         ops: [],
         cart: {},
@@ -618,44 +785,286 @@
     }
 
     // --- 1. HOME & FINANÇAS ---
-    function renderHome() {
-        const totalVendas = db.sales.reduce((a, b) => a + b.total, 0);
+function renderHome() {
+        const validSales = db.sales.filter(s => s.status !== 'Cancelada');
+        const totalVendas = validSales.reduce((a, b) => a + b.total, 0);
         const pct = Math.min(100, (totalVendas / db.target) * 100);
-        document.getElementById('progress-bar').style.width = pct + '%';
-        document.getElementById('progress-txt').innerText = pct.toFixed(1) + '%';
+        
+        const progBar = document.getElementById('progress-bar');
+        const progTxt = document.getElementById('progress-txt');
+        if(progBar) progBar.style.width = pct + '%';
+        if(progTxt) progTxt.innerText = pct.toFixed(1) + '%';
+
+        // Gráfico da Home
+        const c = document.getElementById('home-chart-container');
+        if(c) {
+            const topProducts = [
+                { name: 'Mini Kibe Tradicional 1kg', pct: 85 },
+                { name: 'Pão de Queijo 2kg', pct: 60 },
+                { name: 'Mini Coxinha Frango', pct: 45 }
+            ];
+            let html = '';
+            topProducts.forEach(tp => {
+                html += `
+                <div style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:3px;">
+                        <strong>${tp.name}</strong><span>${tp.pct}% do Volume</span>
+                    </div>
+                    <div class="progress-track" style="height:8px;">
+                        <div class="progress-fill" style="width:${tp.pct}%; background:linear-gradient(90deg, #1E88E5, #64B5F6);"></div>
+                    </div>
+                </div>`;
+            });
+            c.innerHTML = html;
+        }
     }
 
-function renderFinance() {
-        // Atualiza os seletores de cliente no filtro
+    function renderFinance() {
         const sel = document.getElementById('nf-client-filter');
-        const currentVal = sel.value;
-        sel.innerHTML = '<option value="ALL">Todos os Clientes</option>';
-        db.clients.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-        sel.value = currentVal || "ALL";
+        if(sel) {
+            const currentVal = sel.value;
+            sel.innerHTML = '<option value="ALL">Todos os Clientes</option>';
+            db.clients.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+            sel.value = currentVal || "ALL";
+        }
 
-        // Chama a renderização da lista
         renderNFList();
+        renderExpenseList(); 
 
-        // O resto do cálculo do DRE (Copia o que te mandei na interação anterior)
-        const totalVendas = db.sales.reduce((a, b) => a + b.total, 0);
+        const validSales = db.sales.filter(s => s.status !== 'Cancelada');
+        const totalVendas = validSales.reduce((a, b) => a + b.total, 0);
+        
+        // Puxa as despesas de suas matrizes corretas
+        let despesasFixas = db.custosFixos.reduce((a, b) => a + b.val, 0);
+        let despesasVariaveis = db.despesas.reduce((a, b) => a + b.val, 0);
+
         const imposto = totalVendas * 0.068; 
         const liquida = totalVendas - imposto;
         let cmvReal = totalVendas * 0.384; 
         if(cmvReal === 0 && totalVendas === 0) cmvReal = 1840; 
-        const despesasFixas = 4500;
-        const lucro = liquida - cmvReal - despesasFixas;
+        
+        const lucro = liquida - cmvReal - despesasFixas - despesasVariaveis;
 
         document.getElementById('fin-receber').innerText = totalVendas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-        document.getElementById('dre-receita').innerText = totalVendas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-        document.getElementById('dre-imposto').innerText = imposto.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-        document.getElementById('dre-liquida').innerText = liquida.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-        document.getElementById('dre-cmv').innerText = cmvReal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
         
-        const lucroEl = document.getElementById('dre-lucro');
-        lucroEl.innerText = lucro.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-        lucroEl.style.color = lucro >= 0 ? 'green' : 'red';
+        const dreTable = document.getElementById('dre-dynamic-table');
+        if(dreTable) {
+            dreTable.innerHTML = `
+                <tbody>
+                    <tr><td>Receita Bruta de Vendas</td><td style="text-align:right; color:green;">${totalVendas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td></tr>
+                    <tr><td style="color:#666;">(-) Impostos Simples (6.8%)</td><td style="text-align:right; color:red;">${imposto.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td></tr>
+                    <tr style="background:#f9f9f9; font-weight:bold;"><td>(=) Receita Líquida</td><td style="text-align:right;">${liquida.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td></tr>
+                    <tr><td style="color:#666;">(-) CMV (Custo Produtivo)</td><td style="text-align:right; color:red;">${cmvReal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td></tr>
+                    <tr><td style="color:#666;">(-) Custos Fixos (Mês)</td><td style="text-align:right; color:red;">${despesasFixas.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td></tr>
+                    <tr><td style="color:#666;">(-) Gastos Avulsos</td><td style="text-align:right; color:red;">${despesasVariaveis.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td></tr>
+                    <tr class="total"><td>(=) Lucro Líquido</td><td style="text-align:right; color:${lucro >= 0 ? 'green' : 'red'};">${lucro.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td></tr>
+                </tbody>
+            `;
+        }
     }
-function renderNFList() {
+
+    function renderExpenseList() {
+        const c = document.getElementById('expense-list-container');
+        if(!c) return;
+        c.innerHTML = '';
+        
+        // Renderiza o Lembrete de Custos Fixos sempre no topo
+        let totalFixos = db.custosFixos.reduce((a,b) => a + b.val, 0);
+        c.innerHTML += `
+        <div class="nf-item" style="cursor:default; margin-bottom:10px; background:#FFF8E1; border-left:4px solid #FFB300;">
+            <div class="nf-info" style="display:flex; align-items:center; gap:10px;">
+                <div style="background:rgba(255,179,0,0.2); width:35px; height:35px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-building" style="color:#FFB300; font-size:1.2rem;"></i>
+                </div>
+                <div>
+                    <h4 style="margin:0; font-size:0.9rem;">Custos Fixos da Empresa</h4>
+                    <p style="margin:0; font-size:0.75rem; color:#888;">Provisionado no DRE</p>
+                </div>
+            </div>
+            <div class="nf-val">
+                <strong style="color:var(--brand-red); font-size:1rem;">- R$ ${totalFixos.toFixed(2)}</strong>
+            </div>
+        </div>`;
+
+        // Renderiza as Despesas Avulsas abaixo
+        db.despesas.forEach(d => {
+            c.innerHTML += `
+            <div class="nf-item" style="cursor:default; margin-bottom:8px;">
+                <div class="nf-info" style="display:flex; align-items:center; gap:10px;">
+                    <div style="background:rgba(142,36,170,0.1); width:35px; height:35px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-receipt" style="color:#8E24AA; font-size:1.2rem;"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin:0; font-size:0.9rem;">${d.desc}</h4>
+                        <p style="margin:0; font-size:0.75rem; color:#888;">${d.data} • Avulso</p>
+                    </div>
+                </div>
+                <div class="nf-val">
+                    <strong style="color:var(--brand-red); font-size:1rem;">- R$ ${d.val.toFixed(2)}</strong>
+                </div>
+            </div>`;
+        });
+    }
+
+function renderStockRaw() {
+        const c = document.getElementById('stock-raw-content');
+        if(!c) return;
+        c.innerHTML = '';
+        
+        // IA DE COMPRAS: Filtra quem está no mínimo OU até 20% acima do mínimo (quase acabando)
+        const lowStockItems = db.insumos.filter(i => i.stock <= (i.min * 1.2));
+        
+        if(lowStockItems.length > 0) {
+            // Calcula o custo para elevar o estoque para 3x o mínimo
+            let replCost = lowStockItems.reduce((acc, i) => acc + (i.cost * ((i.min * 3) - i.stock)), 0); 
+            
+            c.innerHTML += `
+            <div class="card" style="background:#FFEBEE; border-left:4px solid var(--brand-red); padding:15px; margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="width:100%;">
+                        <strong style="color:var(--brand-red); font-size:0.95rem;"><i class="fas fa-robot"></i> IA de Compras</strong>
+                        <p style="margin:4px 0 10px 0; font-size:0.8rem; color:var(--brand-dark);">Você tem <b>${lowStockItems.length} insumos</b> em nível crítico ou de alerta. O sistema já montou a lista de reposição.</p>
+                        <button class="btn btn-primary" style="margin:0; background:var(--brand-red); border:none; width:100%;" onclick="openPurchaseOrder()"><i class="fas fa-file-invoice"></i> Gerar Ordem de Compra</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        db.insumos.forEach(i => {
+            const isCritical = i.stock <= i.min;
+            const isWarning = i.stock > i.min && i.stock <= (i.min * 1.2);
+            let statusBadge = '';
+            let valColor = 'green';
+            
+            if (isCritical) { 
+                statusBadge = '<br><span class="status-badge status-cancelada">Estoque Crítico</span>'; 
+                valColor = 'red'; 
+            } else if (isWarning) { 
+                statusBadge = '<br><span class="status-badge status-producao" style="background:#FFF3E0; color:#E65100;">Alerta (Acabando)</span>'; 
+                valColor = '#E65100'; 
+            }
+
+            c.innerHTML += `<div class="product-item">
+                <div class="prod-info"><h4>${i.name}</h4><p>R$ ${i.cost.toFixed(2)} / un</p></div>
+                <div style="text-align:right;"><span style="font-size:1.1rem; font-weight:bold; color:${valColor}">${i.stock.toFixed(2)}</span>${statusBadge}</div>
+            </div>`;
+        });
+    }
+	// --- FUNÇÕES DE COMPRAS AUTOMATIZADAS ---
+    function openPurchaseOrder() {
+        const tbody = document.getElementById('po-table-body');
+        tbody.innerHTML = '';
+        let totalPO = 0;
+
+        const lowStockItems = db.insumos.filter(i => i.stock <= (i.min * 1.2));
+        
+        lowStockItems.forEach(i => {
+            // Sugere comprar o suficiente para garantir 3x o estoque mínimo
+            const qtdSugerida = Math.ceil((i.min * 3) - i.stock);
+            const subtotal = qtdSugerida * i.cost;
+            totalPO += subtotal;
+
+            tbody.innerHTML += `
+            <tr>
+                <td style="padding:8px; font-size:0.85rem; border-bottom:1px solid #eee;">
+                    <strong>${i.name}</strong><br>
+                    <span style="font-size:0.7rem; color:#888;">Atual: ${i.stock.toFixed(2)} | Min: ${i.min}</span>
+                </td>
+                <td style="padding:8px; text-align:center; font-weight:bold; color:var(--info); border-bottom:1px solid #eee;">
+                    ${qtdSugerida}
+                </td>
+                <td style="padding:8px; text-align:right; font-size:0.85rem; border-bottom:1px solid #eee;">
+                    R$ ${subtotal.toFixed(2)}
+                </td>
+            </tr>`;
+        });
+
+        document.getElementById('po-total-val').innerText = totalPO.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        openModal('po-modal');
+    }
+
+    function approvePurchaseOrder() {
+        showToast('Ordem de Compra aprovada! PDF enviado para o fornecedor via WhatsApp.', 'success');
+        closeModal('po-modal');
+        // No futuro, isso aqui daria baixa num "contas a pagar" no financeiro.
+    }
+
+    // --- FUNÇÕES DE CUSTOS FIXOS ---
+    function openFixedCostsModal() {
+        renderFixedCostsList();
+        openModal('fixed-costs-modal');
+    }
+
+    function renderFixedCostsList() {
+        const c = document.getElementById('fixed-costs-list');
+        c.innerHTML = '';
+        if(db.custosFixos.length === 0) {
+            c.innerHTML = '<p style="text-align:center; color:#999; font-size:0.8rem; margin:0;">Nenhum custo fixo cadastrado.</p>';
+            return;
+        }
+        db.custosFixos.forEach((fc, index) => {
+            c.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed #eee;">
+                <div><strong style="font-size:0.85rem; color:var(--brand-dark);">${fc.desc}</strong></div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:0.85rem; color:var(--brand-red); font-weight:bold;">R$ ${fc.val.toFixed(2)}</span>
+                    <i class="fas fa-trash" style="color:#ccc; cursor:pointer;" onclick="removeFixedCost(${index})"></i>
+                </div>
+            </div>`;
+        });
+    }
+
+    function addFixedCost() {
+        const desc = document.getElementById('fc-desc').value.trim();
+        const val = parseFloat(document.getElementById('fc-val').value);
+        if(!desc || isNaN(val) || val <= 0) return showToast('Preencha nome e valor válido.', 'error');
+        
+        db.custosFixos.push({ id: Date.now(), desc: desc, val: val });
+        document.getElementById('fc-desc').value = '';
+        document.getElementById('fc-val').value = '';
+        
+        showToast('Custo fixo adicionado!', 'success');
+        renderFixedCostsList();
+        renderFinance(); // Recalcula o DRE na hora
+    }
+
+    function removeFixedCost(index) {
+        db.custosFixos.splice(index, 1);
+        showToast('Custo fixo removido do planejamento.', 'success');
+        renderFixedCostsList();
+        renderFinance(); // Recalcula o DRE na hora
+    }
+
+    // --- FUNÇÕES DE DESPESAS ---
+    function openExpenseModal() {
+        document.getElementById('exp-desc').value = '';
+        document.getElementById('exp-val').value = '';
+        openModal('expense-modal');
+    }
+
+    function saveExpense() {
+        const desc = document.getElementById('exp-desc').value.trim();
+        const val = parseFloat(document.getElementById('exp-val').value);
+        const tipo = document.getElementById('exp-type').value;
+        
+        if(!desc || isNaN(val) || val <= 0) {
+            return showToast('Preencha uma descrição e um valor válido.', 'error');
+        }
+
+        db.despesas.unshift({
+            id: Date.now(),
+            desc: desc,
+            val: val,
+            tipo: tipo,
+            data: new Date().toLocaleDateString('pt-BR')
+        });
+
+        showToast(`Despesa lançada e abatida do lucro!`, 'success');
+        closeModal('expense-modal');
+        renderFinance(); // Recalcula o DRE na hora
+    }
+
+    function renderNFList() {
         const container = document.getElementById('nf-list-container');
         const filter = document.getElementById('nf-client-filter').value;
         container.innerHTML = '';
@@ -668,8 +1077,14 @@ function renderNFList() {
         let totalFiltered = 0;
 
         filteredSales.forEach(sale => {
-            totalFiltered += sale.total;
-            const statusClass = sale.status === 'Paga' ? 'status-paga' : 'status-pendente';
+            // Soma apenas se não for cancelada
+            if (sale.status !== 'Cancelada') totalFiltered += sale.total;
+            
+            // Define a cor da etiqueta
+            let statusClass = 'status-pendente';
+            if (sale.status === 'Paga') statusClass = 'status-paga';
+            if (sale.status === 'Cancelada') statusClass = 'status-cancelada';
+
             container.innerHTML += `
             <div class="nf-item" onclick="openNFManage(${sale.id})">
                 <div class="nf-info">
@@ -677,7 +1092,7 @@ function renderNFList() {
                     <p>${sale.client} • ${sale.date}</p>
                 </div>
                 <div class="nf-val">
-                    <strong>R$ ${sale.total.toFixed(2)}</strong>
+                    <strong style="${sale.status === 'Cancelada' ? 'text-decoration: line-through; color: #aaa;' : ''}">R$ ${sale.total.toFixed(2)}</strong>
                     <span class="status-badge ${statusClass}">${sale.status}</span>
                 </div>
             </div>`;
@@ -686,34 +1101,82 @@ function renderNFList() {
         if(filteredSales.length === 0) container.innerHTML = '<p style="text-align:center; color:#999; font-size:0.9rem;">Nenhuma nota encontrada.</p>';
         document.getElementById('nf-total-filtered').innerText = totalFiltered.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
     }
-	function openNFManage(id) {
+
+    function openNFManage(id) {
         const sale = db.sales.find(s => s.id === id);
         document.getElementById('manage-nf-id').value = sale.id;
         document.getElementById('manage-nf-num').innerText = sale.nfNum;
         document.getElementById('manage-nf-client').innerText = sale.client;
         document.getElementById('manage-nf-total').innerText = sale.total.toFixed(2);
         
+        let statusClass = 'status-pendente';
+        if (sale.status === 'Paga') statusClass = 'status-paga';
+        if (sale.status === 'Cancelada') statusClass = 'status-cancelada';
+
         const statusEl = document.getElementById('manage-nf-status');
         statusEl.innerText = sale.status;
-        statusEl.className = 'status-badge ' + (sale.status === 'Paga' ? 'status-paga' : 'status-pendente');
+        statusEl.className = 'status-badge ' + statusClass;
 
         const btnPay = document.getElementById('btn-pay-nf');
-        if(sale.status === 'Paga') {
+        const btnCancel = document.getElementById('btn-cancel-nf');
+        const btnCce = document.getElementById('btn-cce-nf');
+
+        // Esconde os botões dependendo do status atual da nota
+        if (sale.status === 'Cancelada') {
             btnPay.style.display = 'none';
+            btnCancel.style.display = 'none';
+            btnCce.style.display = 'none';
+        } else if (sale.status === 'Paga') {
+            btnPay.style.display = 'none';
+            btnCancel.style.display = 'block';
+            btnCce.style.display = 'block';
         } else {
             btnPay.style.display = 'block';
+            btnCancel.style.display = 'block';
+            btnCce.style.display = 'block';
         }
 
         openModal('nf-manage-modal');
     }
 
-    function toggleNFStatus() {
-        const id = parseInt(document.getElementById('manage-nf-id').value);
-        const sale = db.sales.find(s => s.id === id);
-        sale.status = 'Paga';
-        showToast(`Pagamento da NF-e ${sale.nfNum} confirmado!`, 'success');
+    // --- NOVAS FUNÇÕES: Lógica de Cancelamento ---
+    function confirmCancelNF() {
+        const id = document.getElementById('manage-nf-id').value;
+        const sale = db.sales.find(s => s.id == id);
+        
+        document.getElementById('cancel-nf-id').value = sale.id;
+        document.getElementById('cancel-nf-label-num').innerText = sale.nfNum;
+        document.getElementById('cancel-nf-reason').value = ''; // Limpa o input
+        
         closeModal('nf-manage-modal');
-        renderFinance(); // Re-renderiza a lista
+        openModal('cancel-nf-modal');
+    }
+
+    function executeCancelNF() {
+        const id = parseInt(document.getElementById('cancel-nf-id').value);
+        const reason = document.getElementById('cancel-nf-reason').value.trim();
+        
+        if(reason.length < 10) {
+            return showToast('O motivo deve ter pelo menos 10 caracteres (Regra Sefaz).', 'error');
+        }
+
+        const sale = db.sales.find(s => s.id === id);
+        
+        // Aplica o cancelamento e zera as pendências
+        sale.status = 'Cancelada';
+        sale.cancelReason = reason;
+        sale.comissao = 0; // Estorna comissão do vendedor
+        if (sale.statusEntrega) sale.statusEntrega = 'Cancelada (Logística)';
+
+        showToast(`NF-e ${sale.nfNum} cancelada com sucesso!`, 'success');
+        
+        closeModal('cancel-nf-modal');
+        
+        // Recalcula tudo em tempo real
+        renderHome();
+        renderFinance();
+        renderComissoes();
+        if (typeof renderRotas === "function") renderRotas();
     }
 
     function emitCCe() {
@@ -922,17 +1385,6 @@ function promptWithdraw(id, name) {
         document.getElementById('tab-' + tab).classList.add('active');
         document.getElementById('stock-' + tab + '-content').style.display = 'block';
     }
-    function renderStockRaw() {
-        const c = document.getElementById('stock-raw-content');
-        c.innerHTML = '';
-        db.insumos.forEach(i => {
-            const low = i.stock <= i.min;
-            c.innerHTML += `<div class="product-item">
-                <div class="prod-info"><h4>${i.name}</h4><p>R$ ${i.cost.toFixed(2)} / un</p></div>
-                <div style="text-align:right;"><span style="font-size:1.1rem; font-weight:bold; color:${low?'red':'green'}">${i.stock.toFixed(2)}</span>${low ? '<br><span class="status-badge status-producao">Comprar</span>' : ''}</div>
-            </div>`;
-        });
-    }
     function renderStockFinished() {
         const c = document.getElementById('stock-finished-content');
         c.innerHTML = '';
@@ -965,17 +1417,52 @@ function promptWithdraw(id, name) {
         document.getElementById('sales-' + tab + '-content').style.display = 'block';
     }
 
-    function renderClients() {
+function renderClients() {
         const list = document.getElementById('clients-list');
         const sel = document.getElementById('client-select');
+        
+        if(!list || !sel) return;
+        
         list.innerHTML = '';
         sel.innerHTML = '<option value="">Selecione o Cliente...</option>';
         
-        db.clients.forEach((c, i) => {
-            sel.innerHTML += `<option value="${c}">${c}</option>`;
+        const hoje = Date.now(); // Pega o exato momento atual do sistema
+
+        db.clients.forEach((clienteNome, index) => {
+            // Adiciona no dropdown do PDV normalmente
+            sel.innerHTML += `<option value="${clienteNome}">${clienteNome}</option>`;
+            
+            // --- LÓGICA DE CRM: Busca o tempo da última compra ---
+            const vendasDesteCliente = db.sales.filter(s => s.client === clienteNome && s.status !== 'Cancelada');
+            let statusHtml = '';
+            
+            if (vendasDesteCliente.length > 0) {
+                // Encontra a venda mais recente (maior ID de timestamp)
+                const ultimaVenda = vendasDesteCliente.reduce((prev, current) => (prev.id > current.id) ? prev : current);
+                
+                // Calcula a diferença em dias
+                const diasSemComprar = Math.floor((hoje - ultimaVenda.id) / (1000 * 60 * 60 * 24));
+                
+                if (diasSemComprar > 15) {
+                    // Alerta de Urgência (Mais de 15 dias)
+                    statusHtml = `<div style="margin-top:8px;"><span class="status-badge status-cancelada" style="font-size:0.75rem;"><i class="fas fa-fire"></i> Risco de Perda: ${diasSemComprar} dias sem comprar!</span></div>`;
+                } else if (diasSemComprar === 0) {
+                    statusHtml = `<div style="margin-top:5px; font-size:0.75rem; color:var(--success); font-weight:bold;">Comprou Hoje</div>`;
+                } else {
+                    statusHtml = `<div style="margin-top:5px; font-size:0.75rem; color:#888;">Última compra há ${diasSemComprar} dias</div>`;
+                }
+            } else {
+                statusHtml = `<div style="margin-top:8px;"><span class="status-badge status-producao" style="font-size:0.75rem;">Nunca comprou (Prospect)</span></div>`;
+            }
+
+            // Injeta o cliente na lista com o painel de CRM
             list.innerHTML += `
-            <li class="product-item" onclick="openEditClient(${i})" style="cursor:pointer">
-                <span style="font-weight:700;">${c}</span><i class="fas fa-pen" style="color:#ddd;"></i>
+            <li class="product-item" onclick="openEditClient(${index})" style="cursor:pointer; flex-direction:column; align-items:flex-start;">
+                <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="font-size:1rem; color:var(--brand-dark);">${clienteNome}</strong>
+                    <i class="fas fa-pen" style="color:#ccc;"></i>
+                </div>
+                ${statusHtml}
             </li>`;
         });
     }
@@ -1045,23 +1532,56 @@ function promptWithdraw(id, name) {
         renderCatalog();
     }
 
-    function openCart() {
+// 1. Substitua o openCart() atual por este:
+function openCart() {
         if(Object.keys(db.cart).length === 0) return showToast('Carrinho vazio!', 'error');
+        
         const c = document.getElementById('cart-items');
-        let html = ''; let total = 0;
+        let html = ''; let subtotal = 0;
+        
         for(let id in db.cart) {
             const p = db.products.find(x => x.id == id);
-            const sub = p.price * db.cart[id]; total += sub;
+            const sub = p.price * db.cart[id]; subtotal += sub;
             html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px dashed #eee; padding-bottom:5px;">
                 <div><strong>${p.name}</strong><br><small>${db.cart[id]} un x R$ ${p.price.toFixed(2)}</small></div>
                 <strong>R$ ${sub.toFixed(2)}</strong>
             </div>`;
         }
-        c.innerHTML = html;
-        document.getElementById('cart-total').innerText = total.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+        const client = document.getElementById('client-select').value;
+        let aiOfferHtml = '';
+        
+        if (client) {
+            const outOfCart = db.products.filter(p => !db.cart[p.id] && p.stock > 0);
+            if (outOfCart.length > 0) {
+                const suggested = outOfCart[Math.floor(Math.random() * outOfCart.length)];
+                aiOfferHtml = `
+                <div style="background: linear-gradient(135deg, #1E88E5, #1565C0); color: white; padding: 12px; border-radius: 12px; margin-top: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex:1;">
+                        <strong style="font-size:0.85rem; color:#FFD600;"><i class="fas fa-bolt"></i> Sugestão (IA)</strong>
+                        <p style="margin:4px 0 0 0; font-size:0.75rem;">Ofereça também <b>${suggested.name}</b> para <b>${client}</b>.</p>
+                    </div>
+                    <button class="btn-small" style="background:var(--brand-yellow); color:var(--brand-dark); border:none; border-radius:8px; padding:8px 12px; margin-left:10px; cursor:pointer; font-weight:bold;" onclick="acceptCombo(${suggested.id})">+ Adicionar</button>
+                </div>`;
+            }
+        }
+
+        // --- NOVO: Campo de Desconto Global ---
+        const discountHtml = `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #eee;">
+            <span style="font-size:0.9rem; font-weight:bold; color:var(--brand-dark);">Desconto (R$):</span>
+            <input type="number" id="cart-discount" class="form-control" style="width:100px; margin:0; text-align:right; font-weight:bold;" value="0" min="0" oninput="applyDiscount(${subtotal})">
+        </div>`;
+
+        c.innerHTML = html + aiOfferHtml + discountHtml;
+        
+        // Define o total inicial (sem desconto)
+        document.getElementById('cart-total').innerText = subtotal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        document.getElementById('cart-total').dataset.subtotal = subtotal; // Guarda o valor original
         
         document.getElementById('cart-title').innerText = "Resumo do Pedido";
         document.getElementById('cart-footer').style.display = 'block';
+        
         const btn = document.getElementById('btn-finish-sale');
         btn.innerHTML = "Emitir NF-e e Faturar";
         btn.onclick = generateDANFE;
@@ -1069,18 +1589,102 @@ function promptWithdraw(id, name) {
         openModal('cart-modal');
     }
 
+    // 2. Nova função para recalcular o total na tela quando o vendedor digita o desconto
+    function applyDiscount(subtotal) {
+        let discount = parseFloat(document.getElementById('cart-discount').value) || 0;
+        let finalTotal = subtotal - discount;
+        if (finalTotal < 0) finalTotal = 0; // Evita nota negativa
+        document.getElementById('cart-total').innerText = finalTotal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    }
+
+    // 2. Adicione esta nova função logo abaixo do openCart():
+    function acceptCombo(productId) {
+        db.cart[productId] = 1; // Adiciona 1 unidade do produto sugerido ao carrinho
+        showToast('Oferta aceita! Produto adicionado.', 'success');
+        openCart(); // Reabre o carrinho atualizado (o total sobe e a sugestão some)
+        renderCatalog(); // Atualiza os botões de + e - lá na tela de trás do PDV
+    }
+
+ // 1. Faz a checagem de inadimplência e chama o modal customizado
     function generateDANFE() {
         const client = document.getElementById('client-select').value;
         if(!client) { showToast('Selecione um cliente!', 'error'); closeModal('cart-modal'); return; }
         
-        let total = 0; let trs = ''; const numNota = Math.floor(Math.random() * 9000) + 1000;
+        const isDefaulter = db.sales.some(sale => sale.client === client && sale.status === 'Pendente');
+        
+        if(isDefaulter) {
+            document.getElementById('confirm-msg').innerHTML = `O cliente <strong>${client}</strong> possui notas pendentes e está inadimplente.<br><br>Deseja continuar com a emissão da NF-e mesmo assim?`;
+            openModal('confirm-modal');
+        } else {
+            // Se o cliente estiver ok, pula o aviso e emite direto
+            proceedDANFE();
+        }
+    }
+
+    // 2. Realmente emite a DANFE (com simulação de NCM da IA)
+// 1. Emite a DANFE e amarra a comissão bloqueada
+function proceedDANFE() {
+        closeModal('confirm-modal');
+        const client = document.getElementById('client-select').value;
+        const vendId = parseInt(document.getElementById('vendedor-select').value);
+        const vendedor = db.vendedores.find(v => v.id === vendId);
+        
+        if(!vendedor) { showToast('Selecione o vendedor responsável!', 'error'); return; }
+        
+        let subtotal = 0; let trs = ''; const numNota = Math.floor(Math.random() * 9000) + 1000;
+        
         for(let id in db.cart) {
             const p = db.products.find(x => x.id == id);
             p.stock -= db.cart[id];
-            const sub = p.price * db.cart[id]; total += sub;
-            trs += `<tr><td>${p.id.toString().padStart(4,'0')}</td><td>${p.name}</td><td>UN</td><td>${db.cart[id]}</td><td>R$ ${sub.toFixed(2)}</td></tr>`;
+            const sub = p.price * db.cart[id]; subtotal += sub;
+            
+            let ncmView = p.ncmAtual;
+            if (p.ncmSugestao) ncmView = `<strong style="color:var(--success);">${p.ncmSugestao}</strong>`;
+
+            trs += `<tr>
+                <td style="line-height:1.2;">${p.id.toString().padStart(4,'0')}<br><span style="font-size:0.7rem; color:#666;">NCM: ${ncmView}</span></td>
+                <td>${p.name}</td>
+                <td>UN</td>
+                <td style="text-align:center;">${db.cart[id]}</td>
+                <td style="text-align:right;">R$ ${sub.toFixed(2)}</td>
+            </tr>`;
         }
-        db.sales.push({ id: Date.now(), total: total });
+        
+        // Puxa o desconto que foi digitado
+        const discount = parseFloat(document.getElementById('cart-discount').value) || 0;
+        let total = subtotal - discount;
+        if (total < 0) total = 0;
+
+        let discountRow = '';
+        if (discount > 0) {
+            discountRow = `<div style="text-align:right; font-size:0.9rem; border:1px solid #000; border-bottom:none; padding:5px; background:#fff; color:var(--brand-red);"><strong>DESCONTO: - R$ ${discount.toFixed(2)}</strong></div>`;
+        }
+        
+        const valorComissao = total * (vendedor.comissaoPct / 100);
+        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        
+		db.sales.unshift({ 
+            id: Date.now(), 
+            nfNum: `000.00${numNota}`, 
+            date: dataHoje, 
+            client: client, 
+            total: total, 
+            status: "Pendente", 
+            vendedorId: vendedor.id, 
+            comissao: valorComissao, 
+            comissaoPaga: false,
+            // Adiciona a localização capturada (se houver)
+            localizacao: localizacaoVendedor 
+        });
+
+        // Reseta o GPS para a próxima venda
+        localizacaoVendedor = null;
+        const btnGps = document.getElementById('btn-gps');
+        if(btnGps) {
+            btnGps.style.background = 'white';
+            btnGps.style.color = 'var(--info)';
+            btnGps.innerHTML = '<i class="fas fa-map-marker-alt"></i> Fazer Check-in no Cliente';
+        }
 
         const danfe = `
         <div class="danfe-box">
@@ -1088,15 +1692,14 @@ function promptWithdraw(id, name) {
                 <div style="width:50%; border-right:1px solid #000;"><strong>DELICK'S INDÚSTRIA</strong><br>CNPJ: 12.345.678/0001-90</div>
                 <div style="flex:1; text-align:center;">DANFE<br>Nº 000.00${numNota}</div>
             </div>
-            <div style="border:1px solid #000; text-align:center; padding:5px; margin-bottom:10px; background:#f9f9f9; font-size:0.7rem;">
-                CHAVE DE ACESSO<br>4326 0212 3456 7800 0190 5500 1000 00${numNota} 1123 4567<div class="barcode-mock"></div>
-            </div>
             <div style="border:1px solid #000; padding:5px; margin-bottom:10px;"><strong>DESTINATÁRIO:</strong> ${client}</div>
-            <table class="dre-table" style="border:1px solid #000;">
-                <thead style="background:#eee;"><tr><th>CÓDIGO</th><th>DESCRIÇÃO</th><th>UN</th><th>QTD</th><th>TOTAL</th></tr></thead>
+            <table class="dre-table" style="border:1px solid #000; margin-bottom:0;">
+                <thead style="background:#eee;"><tr><th>CÓD.</th><th>DESCRIÇÃO</th><th>UN</th><th style="text-align:center;">QTD</th><th style="text-align:right;">SUBTOTAL</th></tr></thead>
                 <tbody>${trs}</tbody>
             </table>
-            <div style="text-align:right; font-size:1rem; border:1px solid #000; padding:5px; background:#eee;"><strong>TOTAL: R$ ${total.toFixed(2)}</strong></div>
+            ${discountRow}
+            <div style="text-align:right; font-size:1rem; border:1px solid #000; padding:5px; background:#eee;"><strong>TOTAL DA NOTA: R$ ${total.toFixed(2)}</strong></div>
+            <div style="font-size:0.7rem; color:#666; margin-top:5px;">Vendedor: ${vendedor.name}</div>
         </div>`;
 
         document.getElementById('cart-title').innerText = "NF-e Emitida";
@@ -1104,7 +1707,7 @@ function promptWithdraw(id, name) {
         document.getElementById('cart-footer').style.display = 'none';
         
         const btn = document.getElementById('btn-finish-sale');
-        btn.innerHTML = "<i class='fas fa-print'></i> Fechar Venda";
+        btn.innerHTML = "<i class='fas fa-check'></i> Concluir";
         document.getElementById('cart-footer').style.display = 'block';
         document.getElementById('cart-total').parentElement.style.display = 'none';
 
@@ -1112,12 +1715,293 @@ function promptWithdraw(id, name) {
             db.cart = {};
             showToast('Faturamento Concluído.', 'success');
             closeModal('cart-modal');
+            renderFinance();
+            renderComissoes();
             navTo('home');
         };
     }
 
+    // 2. Muda o status da nota e engatilha o recalculo de comissões
+    function toggleNFStatus() {
+        const id = parseInt(document.getElementById('manage-nf-id').value);
+        const sale = db.sales.find(s => s.id === id);
+        sale.status = 'Paga';
+        showToast(`Pagamento da NF-e ${sale.nfNum} confirmado! A comissão foi liberada.`, 'success');
+        closeModal('nf-manage-modal');
+        renderFinance(); 
+        renderComissoes();
+    }
+
+    // 3. Renderiza o painel de comissões em Finanças
+    function renderComissoes() {
+        const container = document.getElementById('comissoes-list');
+        if(!container) return;
+        container.innerHTML = '';
+        
+        db.vendedores.forEach(vend => {
+            if(vend.comissaoPct === 0) return; // Pula usuários master (você)
+            
+            let liberada = 0; let bloqueada = 0;
+            
+            db.sales.forEach(sale => {
+                if(sale.vendedorId === vend.id && !sale.comissaoPaga) {
+                    if(sale.status === 'Paga') liberada += sale.comissao;
+                    else bloqueada += sale.comissao;
+                }
+            });
+            
+            if(liberada > 0 || bloqueada > 0) {
+                container.innerHTML += `
+                <div class="product-item" style="flex-direction:column; align-items:flex-start; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:8px;">
+                        <strong style="font-size:0.95rem;">${vend.name} <span class="status-badge" style="background:#eee; color:#555;">${vend.comissaoPct}%</span></strong>
+                        ${liberada > 0 ? `<button class="btn-small" style="background:var(--success); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="pagarComissao(${vend.id}, '${vend.name}')"><i class="fas fa-hand-holding-usd"></i> Pagar R$ ${liberada.toFixed(2)}</button>` : `<span class="status-badge status-pendente">Aguardando Pagamento NF</span>`}
+                    </div>
+                    <div style="display:flex; gap:15px; font-size:0.8rem; color:#777; width:100%; padding-top:5px; border-top:1px dashed #eee;">
+                        <span>Liberado: <strong style="color:var(--success);">R$ ${liberada.toFixed(2)}</strong></span>
+                        <span>Bloqueado (Inadimplência): <strong style="color:var(--warning);">R$ ${bloqueada.toFixed(2)}</strong></span>
+                    </div>
+                </div>`;
+            }
+        });
+        
+        if(container.innerHTML === '') container.innerHTML = '<p style="text-align:center; color:#999; font-size:0.85rem;">Nenhuma comissão pendente.</p>';
+    }
+
+    // 4. Executa a baixa do pagamento para o vendedor
+    function pagarComissao(vendedorId, nome) {
+        let totalPago = 0;
+        db.sales.forEach(sale => {
+            if(sale.vendedorId === vendedorId && sale.status === 'Paga' && !sale.comissaoPaga) {
+                sale.comissaoPaga = true;
+                totalPago += sale.comissao;
+            }
+        });
+        showToast(`Comissão de R$ ${totalPago.toFixed(2)} transferida para ${nome}!`, 'success');
+        renderComissoes();
+    }
+
+    // 5. Preenche o Dropdown de vendedores no PDV
+    function renderVendedores() {
+        const sel = document.getElementById('vendedor-select');
+        if(!sel) return;
+        sel.innerHTML = '<option value="">Selecione a sua conta...</option>';
+        db.vendedores.forEach(v => {
+            sel.innerHTML += `<option value="${v.id}">${v.name} (${v.comissaoPct}%)</option>`;
+        });
+    }
+// --- MÓDULO DE LOGÍSTICA ---
+    
+    // Atualiza a função navTo existente para aceitar a logística
+    const oldNavTo = navTo;
+    navTo = function(pageId) {
+        oldNavTo(pageId);
+        if(pageId === 'logistics') {
+            switchLogTab('rotas');
+            setTimeout(initCanvas, 100); // Garante que o canvas carregue
+        }
+    };
+
+    function switchLogTab(tab) {
+        document.getElementById('tab-rotas').classList.remove('active');
+        document.getElementById('tab-acerto').classList.remove('active');
+        document.getElementById('log-rotas-content').style.display = 'none';
+        document.getElementById('log-acerto-content').style.display = 'none';
+        
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('log-' + tab + '-content').style.display = 'block';
+        
+        if(tab === 'rotas') renderRotas();
+        if(tab === 'acerto') renderAcerto();
+    }
+
+    function renderRotas() {
+        const c = document.getElementById('log-rotas-content');
+        c.innerHTML = '';
+        
+        const emTransito = db.sales.filter(s => s.statusEntrega === 'Em Trânsito' || s.statusEntrega === 'Em Separação');
+        
+        if(emTransito.length === 0) {
+            c.innerHTML = '<p style="text-align:center; color:#999; margin-top:30px;">Nenhuma entrega pendente.</p>';
+            return;
+        }
+
+        emTransito.forEach(sale => {
+            const motorista = sale.motoristaId ? db.motoristas.find(m => m.id === sale.motoristaId).name : 'Aguardando Despacho';
+            const bgClass = sale.statusEntrega === 'Em Separação' ? 'background:#FFF3E0;' : 'background:#E3F2FD; border-left: 4px solid var(--info);';
+            const btnHtml = sale.statusEntrega === 'Em Trânsito' 
+                ? `<button class="btn btn-primary" style="margin:0; background:var(--info); border:none;" onclick="openSignature(${sale.id})"><i class="fas fa-pen-nib"></i> Coletar Assinatura</button>`
+                : `<button class="btn btn-secondary" style="margin:0;" onclick="despacharCarga(${sale.id})"><i class="fas fa-box-open"></i> Despachar Carga</button>`;
+
+            c.innerHTML += `
+            <div class="card" style="padding:15px; margin-bottom:12px; ${bgClass}">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <strong style="font-size:1.1rem; color:var(--brand-dark);">${sale.client}</strong>
+                    <span class="status-badge" style="background:#fff; border:1px solid #ccc;">NF: ${sale.nfNum}</span>
+                </div>
+                <div style="font-size:0.85rem; color:#555; margin-bottom:12px; line-height:1.4;">
+                    <i class="fas fa-map-marker-alt" style="color:var(--brand-red);"></i> Motorista/Rota: <strong>${motorista}</strong><br>
+                    <i class="fas fa-money-bill-wave" style="color:var(--success);"></i> Valor a receber: <strong>R$ ${sale.total.toFixed(2)}</strong> (${sale.status})
+                </div>
+                ${btnHtml}
+            </div>`;
+        });
+    }
+
+    function despacharCarga(saleId) {
+        // Simula o estoquista bipando a NF e mandando pro motorista 1
+        const sale = db.sales.find(s => s.id === saleId);
+        sale.statusEntrega = 'Em Trânsito';
+        sale.motoristaId = 1; 
+        showToast(`Carga da NF ${sale.nfNum} entregue ao motorista João!`, 'info');
+        renderRotas();
+    }
+
+    function renderAcerto() {
+        const c = document.getElementById('log-acerto-content');
+        c.innerHTML = '<p style="font-size:0.85rem; color:#666;">Valores que os motoristas coletaram na rua (NFs Pendentes marcadas como Entregues).</p>';
+        
+        db.motoristas.forEach(mot => {
+            // Busca vendas entregues mas que ainda estão com status de pagamento "Pendente" no sistema
+            const entregasSemAcerto = db.sales.filter(s => s.motoristaId === mot.id && s.statusEntrega === 'Entregue' && s.status === 'Pendente');
+            
+            let totalDevido = 0;
+            entregasSemAcerto.forEach(s => totalDevido += s.total);
+            
+            if(totalDevido > 0) {
+                c.innerHTML += `
+                <div class="card" style="border-left: 4px solid var(--warning);">
+                    <h4><i class="fas fa-user-circle"></i> ${mot.name}</h4>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.9rem;">Dinheiro/PIX retido:</span>
+                        <strong style="font-size:1.2rem; color:var(--brand-red);">R$ ${totalDevido.toFixed(2)}</strong>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top:10px; background:var(--success); border:none;" onclick="realizarAcerto(${mot.id})"><i class="fas fa-check-double"></i> Receber no Caixa</button>
+                </div>`;
+            }
+        });
+        
+        if(c.innerHTML.indexOf('card') === -1) {
+            c.innerHTML += '<div class="card" style="text-align:center;"><i class="fas fa-check-circle" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i><br>Todos os motoristas estão com o caixa zerado.</div>';
+        }
+    }
+
+    function realizarAcerto(motId) {
+        // Transforma todas as NFs pendentes desse motorista em Pagas
+        db.sales.forEach(s => {
+            if(s.motoristaId === motId && s.statusEntrega === 'Entregue' && s.status === 'Pendente') {
+                s.status = 'Paga';
+            }
+        });
+        showToast('Acerto de caixa realizado! Dinheiro entrou em Finanças.', 'success');
+        renderAcerto();
+        renderFinance(); // Atualiza o DRE geral
+    }
+
+    // --- LÓGICA DO CANVAS (ASSINATURA) ---
+    let canvas, ctx, isDrawing = false;
+    
+    function initCanvas() {
+        canvas = document.getElementById('sig-canvas');
+        if(!canvas || ctx) return; // Evita iniciar duas vezes
+        ctx = canvas.getContext('2d');
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000';
+
+        const startDraw = (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            ctx.beginPath();
+            ctx.moveTo(clientX - rect.left, clientY - rect.top);
+            if(!e.type.includes('mouse')) e.preventDefault(); // Evita scroll no mobile
+        };
+
+        const draw = (e) => {
+            if(!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            ctx.lineTo(clientX - rect.left, clientY - rect.top);
+            ctx.stroke();
+            if(!e.type.includes('mouse')) e.preventDefault();
+        };
+
+        const stopDraw = () => { isDrawing = false; };
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseout', stopDraw);
+        
+        canvas.addEventListener('touchstart', startDraw, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        canvas.addEventListener('touchend', stopDraw);
+    }
+
+    function openSignature(saleId) {
+        const sale = db.sales.find(s => s.id === saleId);
+        document.getElementById('sig-sale-id').value = sale.id;
+        document.getElementById('sig-nf-num').innerText = sale.nfNum;
+        clearCanvas();
+        openModal('signature-modal');
+    }
+
+    function clearCanvas() {
+        if(ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function confirmDelivery() {
+        // Verifica se o canvas está em branco cruzando os pixels (opcional, mas vamos simplificar)
+        const id = parseInt(document.getElementById('sig-sale-id').value);
+        const sale = db.sales.find(s => s.id === id);
+        
+        sale.statusEntrega = 'Entregue';
+        // Simulando salvar a imagem da assinatura no BD (base64)
+        const signatureImage = canvas.toDataURL(); 
+        
+        showToast(`Entrega da NF ${sale.nfNum} confirmada com assinatura!`, 'success');
+        closeModal('signature-modal');
+        renderRotas(); // Atualiza a tela de rotas
+    }
+	// --- MÓDULO DE GEOLOCALIZAÇÃO ---
+    let localizacaoVendedor = null;
+
+    function capturarLocalizacao() {
+        if (navigator.geolocation) {
+            showToast('Buscando sinal de GPS...', 'info');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    localizacaoVendedor = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    // Muda o visual do botão para mostrar que deu certo
+                    const btn = document.getElementById('btn-gps');
+                    btn.style.background = 'var(--info)';
+                    btn.style.color = 'white';
+                    btn.innerHTML = `<i class="fas fa-check"></i> Localização Capturada!`;
+                    
+                    showToast('GPS sincronizado com sucesso!', 'success');
+                },
+                (error) => {
+                    if (error.code === 1) showToast('Permissão de GPS negada pelo usuário.', 'error');
+                    else showToast('Erro ao capturar localização. Tente novamente.', 'error');
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            showToast('Geolocalização não suportada por este navegador.', 'error');
+        }
+    }
     // INIT
     renderHome();
+    renderVendedores();
+    renderComissoes();
 </script>
 </body>
 </html>
